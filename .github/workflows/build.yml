@@ -4,39 +4,33 @@ on: workflow_dispatch
 jobs:
   build-linux:
     name: Build (Linux)
-    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        os: [ macos-latest, ubuntu-latest, windows-latest ]
+
+    runs-on: ${{ matrix.os }}
+
     steps:
       - uses: actions/checkout@v4
       - name: Install dependencies
         run: pip install -r requirements.txt
-      - name: Install nuitka
-        run: pip install nuitka
       - name: Install zip
+        if: ${{ matrix.os == 'ubuntu-latest' }}
         run: |
           sudo apt-get update
           sudo apt-get install -y zip
       - name: Build
-        run: nuitka --standalone --onefile --output-dir=dist/ cli.py
-      - name: Archive
-        run: zip -r package.zip dist/*
-      - name: Upload package
-        uses: actions/upload-artifact@v4
+        uses: Nuitka/Nuitka-Action@main
         with:
-          name: package
-          path: "package.zip"
-  build-mac:
-    name: Build (macOS)
-    runs-on: macos-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: Install dependencies
-        run: pip install -r requirements.txt
-      - name: Install nuitka
-        run: pip install nuitka
-      - name: Build
-        run: nuitka --standalone --onefile --output-dir=dist/ cli.py
-      - name: Archive
-        run: zip -r package.zip dist/*
+          nuitka-version: main
+          script-name: hello_world.py
+          mode: standalone
+      - name: Archive (bash)
+        if: ${{ matrix.os != 'windows-latest' }}
+        run: zip -r package.zip build/*
+      - name: Archive (PowerShell)
+        if: ${{ matrix.os == 'windows-latest' }}
+        run: Compress-Archive -Path build/* -DestinationPath package.zip
       - name: Upload package
         uses: actions/upload-artifact@v4
         with:
