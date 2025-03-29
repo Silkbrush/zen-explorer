@@ -2,8 +2,8 @@ name: Build (CLI)
 on: workflow_dispatch
 
 jobs:
-  build:
-    name: Build
+  build-linux:
+    name: Build (Linux)
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -18,7 +18,25 @@ jobs:
       - name: Build
         run: nuitka --standalone --onefile --output-dir=dist/ cli.py
       - name: Archive
-        run: zip -r package.zip .
+        run: zip -r package.zip dist/*
+      - name: Upload package
+        uses: actions/upload-artifact@v4
+        with:
+          name: package
+          path: "package.zip"
+  build-mac:
+    name: Build (macOS)
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+      - name: Install nuitka
+        run: pip install nuitka
+      - name: Build
+        run: nuitka --standalone --onefile --output-dir=dist/ cli.py
+      - name: Archive
+        run: zip -r package.zip dist/*
       - name: Upload package
         uses: actions/upload-artifact@v4
         with:
