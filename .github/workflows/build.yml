@@ -1,0 +1,26 @@
+name: Build (CLI)
+on: workflow_dispatch
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+      - name: Install nuitka
+        run: pip install nuitka
+      - name: Install zip
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y zip
+      - name: Build
+        run: nuitka --standalone --output-dir dist/ cli.py
+      - name: Archive
+        run: zip -r package.zip .
+      - name: Upload package
+        uses: actions/upload-artifact@v4
+        with:
+          name: package
+          path: "package.zip"

@@ -8,7 +8,7 @@ def _get_macos_path():
     path = home + '/Library/Application Support/zen/Profiles'
 
     if not os.path.exists(path):
-        raise FileNotFoundError('Zen Browser is not installed')
+        raise NotADirectoryError('Zen Browser is not installed')
 
     return path
 
@@ -19,7 +19,7 @@ def _get_linux_path():
     path = home + '/.zen/Profiles'
 
     if not os.path.exists(path):
-        raise FileNotFoundError('Zen Browser is not installed')
+        raise NotADirectoryError('Zen Browser is not installed')
 
     return path
 
@@ -27,11 +27,11 @@ def _get_flatpak_path():
     path = home + '/.var/app/app.zen_browser.zen/.zen'
 
     if not os.path.exists(path):
-        raise FileNotFoundError('Zen Browser is not installed')
+        raise NotADirectoryError('Zen Browser is not installed')
 
     return path
 
-def get_profiles():
+def _get_paths():
     os_name = sys.platform
 
     if os_name == 'darwin':
@@ -48,6 +48,18 @@ def get_profiles():
             if not paths:
                 raise
 
+    return paths
+
+def get_profile_path(profile):
+    paths = _get_paths()
+    for path in paths:
+        if os.path.isdir(f'{path}/{profile}'):
+            return f'{path}/{profile}'
+
+    raise NotADirectoryError('invalid profile')
+
+def get_profiles():
+    paths = _get_paths()
     profiles = []
     for path in paths:
         profiles.extend(os.listdir(path))
