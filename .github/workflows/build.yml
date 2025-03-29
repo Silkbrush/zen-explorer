@@ -27,7 +27,7 @@ jobs:
         uses: Nuitka/Nuitka-Action@main
         with:
           nuitka-version: main
-          script-name: hello_world.py
+          script-name: cli.py
           mode: standalone
       - name: Archive (bash)
         if: ${{ matrix.os != 'windows-latest' }}
