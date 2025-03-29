@@ -28,7 +28,7 @@ jobs:
         with:
           nuitka-version: main
           script-name: cli.py
-          mode: standalone
+          mode: onefile
           disable-cache: true
       - name: Archive (bash)
         if: ${{ matrix.os != 'windows-latest' }}
