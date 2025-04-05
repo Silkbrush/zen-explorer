@@ -5,6 +5,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "zen-exporer-core"
+version = "0.1.0"
 dynamic = ["version", "dependencies"]
 license = {text = "MIT License"}
 requires-python = ">=3.9"

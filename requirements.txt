@@ -1,2 +1,4 @@
 customtkinter
 platformdirs
+requests
+Pillow

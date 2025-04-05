@@ -1,84 +1,117 @@
 import customtkinter as tk
-import asyncio
-import threading
+import requests
+import time
+from cli import repository
+from PIL import Image
+from io import BytesIO
 
-tk.set_appearance_mode("System")
+repo = repository.data
 
-# Light/dark theme mappings
-mappings = []
-# format:
-# [
-#   {'object': object, 'light': [], 'dark': []}
-# ]
+images = []
+allow_resize_on = time.time()
+resize_delay = 0.05
 
-# Create the main Tkinter window
+# Root
 root = tk.CTk()
-root.title("Zen Explorer")
-root.geometry("900x600")
-root.minsize(600, 400)
-root.configure(fg_color="white")
-mappings.append({'object': root, 'light': {'fg_color': 'white'}, 'dark': {'fg_color': 'black'}})
+root.geometry("800x600")
 
 # Sidebar
 sidebar = tk.CTkFrame(root, width=200)
 sidebar.configure(fg_color="#dddddd", corner_radius=0)
 sidebar.pack_propagate(False)
 sidebar.pack(side="left", fill="y")
-mappings.append({'object': sidebar, 'light': {'fg_color': '#dddddd'}, 'dark': {'fg_color': '#222222'}})
 
 # Main content
 main_content = tk.CTkFrame(root)
 main_content.configure(fg_color="white")
 main_content.pack(side="right", fill="both", expand=True)
-mappings.append({'object': main_content, 'light': {'fg_color': 'white'}, 'dark': {'fg_color': 'black'}})
+max_col = 3
 
-# Label to display async messages
-status_label = tk.CTkLabel(main_content, text="Status: Ready")
-status_label.configure(text_color="black")
-status_label.pack(pady=20)
-mappings.append({'object': status_label, 'light': {'text_color': 'black'}, 'dark': {'text_color': 'white'}})
+def get_image(url):
+    response = requests.get(url)
+    img_data = response.content
 
-# Create a new asyncio event loop in a separate thread
-loop = asyncio.new_event_loop()
-asyncio_thread = threading.Thread(target=loop.run_forever, daemon=True)
-asyncio_thread.start()
+    # Open image
+    img = Image.open(BytesIO(img_data))
 
-# Update
-async def fetch_data():
-    status_label.config(text="Fetching data...")
-    await asyncio.sleep(2)  # Simulate async API call
-    root.after(0, lambda: status_label.config(text="Data loaded!"))  # Update UI safely from the main thread
+    # Set a maximum height
+    max_height = 150
+    # Calculate the new width maintaining the aspect ratio
+    aspect_ratio = img.width / img.height
+    new_height = max_height
+    new_width = int(aspect_ratio * new_height)
 
-# Function to start async task
-def run_async_task(task):
-    asyncio.run_coroutine_threadsafe(task, loop)  # Schedule async function
+    # Resize image
+    resized = img.resize((new_width, new_height))
+    return resized
 
-# Sidebar button
-def create_sidebar_button(parent, text, command):
-    return tk.CTkButton(
-        parent, text=text, command=command
-    )
+def to_ctkimage(image, size=None):
+    # Convert PIL image to CTkImage
+    return tk.CTkImage(image, size=size or (image.width, image.height))
 
-def update_theme_color():
-    mode = tk.get_appearance_mode()
-    is_dark = mode.lower() == "dark"
+def update_main():
+    # Reset main content
+    global allow_resize_on
+    for child in main_content.winfo_children():
+        child.destroy()
+    images = []
+    allow_resize_on = time.time()
 
-    for mapping in mappings:
-        obj = mapping['object']
-        obj.configure(**mapping['dark' if is_dark else 'light'])
+    row = 0
+    col = 0
 
-    root.update()
+    thumbnail = get_image('https://raw.githubusercontent.com/greeeen-dev/natsumi-browser/refs/heads/main/images/home.png')
 
-    root.after(100, lambda: update_theme_color())
+    for theme in repo.themes:
+        theme_data = repo.get_theme(theme)
 
-# Add button to trigger async task
-btn = create_sidebar_button(sidebar, "Load Data", run_async_task)
-btn.pack(fill="x", pady=5, padx=10, ipady=5)
+        # Main frame
+        theme_frame = tk.CTkFrame(main_content)
+        theme_frame.configure(fg_color='transparent', corner_radius=0)
+        theme_frame.grid(row=row, column=col, padx=10, pady=10, sticky="ew")
 
-update_theme_color()
+        # Thumbnail (PLEASE LET THIS FUCKING WORK)
+        theme_thumbnail = tk.CTkLabel(theme_frame, text="", image=to_ctkimage(thumbnail))
+        theme_thumbnail.pack(fill="both", expand=True)
+        images.append({'obj': theme_thumbnail, 'img': thumbnail, 'frame': theme_frame})
 
-# Start the Tkinter event loop
+        # Theme name
+        theme_label = tk.CTkLabel(theme_frame, text=theme_data.name)
+        theme_label.pack()
+
+        col += 1
+        if col >= max_col:
+            col = 0
+            row += 1
+
+def update_images(_):
+    global allow_resize_on
+
+    if time.time() < allow_resize_on:
+        return
+
+    allow_resize_on = time.time() + resize_delay
+
+    for item in images:
+        widget = item['obj']
+        image = item['img']
+        parent = item['frame']
+
+        if not type(widget) is tk.CTkLabel:
+            continue
+
+        new_width = parent.winfo_width()
+        aspect_ratio = image.width / image.height
+        new_height = int(new_width / aspect_ratio)
+
+        widget.configure(image=to_ctkimage(image, size=(new_width, new_height)))
+
+
+update_main()
+
+for col in range(max_col):
+    main_content.grid_columnconfigure(col, weight=1, uniform="column")
+
+root.update()
+root.bind("<Configure>", update_images)
 root.mainloop()
-
-# Cleanup (stop the asyncio loop when Tkinter closes)
-loop.stop()

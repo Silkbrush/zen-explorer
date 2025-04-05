@@ -1,0 +1,35 @@
+name: Release (CLI)
+on: workflow_dispatch
+
+jobs:
+  build:
+    name: Build
+    uses: .github/workflows/build.yml
+  release:
+    name: Release
+    needs: [build]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Download binaries
+        uses: actions/download-artifact@v4
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          path: repository
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Get version
+        run: python3.12 scripts/get_version.py
+      - name: Create GitHub release
+        uses: ncipollo/release-action@v1.14.0
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          name: ${{ env.RAW_VERSION }}
+          tag: ${{ env.VERSION }}
+          skipIfReleaseExists: true
+          artifacts: "zen-explorer-ubuntu-latest,zen-explorer-macos-latest,zen-explorer.exe"
