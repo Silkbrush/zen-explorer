@@ -35,7 +35,7 @@ jobs:
         run: mv build/cli.bin build/zen-explorer
       - name: Rename (PowerShell)
         if: ${{ matrix.os == 'windows-latest' }}
-        run: Rename-Item -Path build/cli.exe -NewName build/zen-explorer.exe
+        run: Rename-Item -Path build/cli.exe -NewName zen-explorer.exe
       - name: Upload package (bash)
         uses: actions/upload-artifact@v4
         if: ${{ matrix.os != 'windows-latest' }}
