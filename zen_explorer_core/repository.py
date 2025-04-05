@@ -42,9 +42,9 @@ def update_repository(repo: str = 'greeeen-dev/zen-custom-theme-store'):
     global data
 
     if os.path.isdir(save_dir + '/repository'):
-        code = os.system(f'cd "{save_dir}/repository" && git pull')
+        code = os.system(f'cd "{save_dir}/repository" && git pull --quiet')
     else:
-        code = os.system(f'git clone https://github.com/{repo} "{save_dir}/repository"')
+        code = os.system(f'git clone https://github.com/{repo} "{save_dir}/repository" --quiet')
     if code != 0:
         raise RuntimeError('failed to update')
 
