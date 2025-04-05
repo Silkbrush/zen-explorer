@@ -13,7 +13,12 @@ def _get_macos_path():
     return path
 
 def _get_windows_path():
-    raise RuntimeError('Windows is not supported yet')
+    path = home + '/AppData/Roaming/zen/Profiles'
+
+    if not os.path.exists(path):
+        raise NotADirectoryError('Zen Browser is not installed')
+
+    return path
 
 def _get_linux_path():
     path = home + '/.zen/Profiles'

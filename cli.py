@@ -176,5 +176,7 @@ command_mappings = {
     }
 }
 
+# Run CLI if invoked directly
+# Otherwise, CLI functions can be used for the sake of abstraction
 if __name__ == '__main__':
     main()
