@@ -4,6 +4,16 @@ from zen_explorer_core.models import theme
 
 zen_profiles = profiles.get_profiles()
 
+class PrintableError(Exception):
+    pass
+
+class MissingArgumentsError(PrintableError):
+    def __init__(self, message):
+        self.message = message
+
+    def __str__(self):
+        return f'Missing argument: {self.message}'
+
 def get_profiles(_args):
     global zen_profiles
     if not zen_profiles:
@@ -56,8 +66,15 @@ def themes(args):
     print(f'\nPage {page + 1} of {maxpage + 1}')
 
 def install(args):
-    zen_theme = args[0]
-    profile = args[1]
+    try:
+        zen_theme = args[0]
+    except IndexError:
+        raise MissingArgumentsError('zen_theme')
+    try:
+        profile = args[1]
+    except IndexError:
+        raise MissingArgumentsError('profile')
+
     staging = '--staging' in args # or True # TODO: debug, remove the "or True"
     bypass_install = '--bypass-install' in args
 
@@ -79,8 +96,15 @@ def install(args):
     print('Theme installed.')
 
 def uninstall(args):
-    zen_theme = args[0]
-    profile = args[1]
+    try:
+        zen_theme = args[0]
+    except IndexError:
+        raise MissingArgumentsError('zen_theme')
+    try:
+        profile = args[1]
+    except IndexError:
+        raise MissingArgumentsError('profile')
+
     staging = '--staging' in args # or True # TODO: debug, remove the "or True"
 
     print('Uninstalling theme...')
@@ -92,7 +116,11 @@ def uninstall(args):
     print('Theme uninstalled.')
 
 def upgrade(args):
-    profile = args[0]
+    try:
+        profile = args[0]
+    except IndexError:
+        raise MissingArgumentsError('profile')
+
     print('Checking for updates...')
 
     try:
@@ -140,7 +168,10 @@ def main():
     command_args = args[1:]
 
     if command in command_mappings.keys():
-        command_mappings[command]['func'](command_args)
+        try:
+            command_mappings[command]['func'](command_args)
+        except PrintableError as e:
+            print('ERROR: '+str(e))
     else:
         print(f'Unknown command: {command}')
 
