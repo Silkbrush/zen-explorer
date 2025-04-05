@@ -180,7 +180,7 @@ def get_updates(profile) -> dict:
         if not zen_theme:
             continue
 
-        if zen_theme.updated_at.timestamp() > data[theme_id]['updatedAt']:
+        if zen_theme.updated_at.timestamp() > data[theme_id].get('updatedAt', 0):
             updates[theme_id] = zen_theme
 
     return updates
