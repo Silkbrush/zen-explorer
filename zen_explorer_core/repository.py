@@ -66,3 +66,5 @@ if os.path.isfile(save_dir + '/repository/themes.json'):
         themes = json.load(f)
 
     data = RepositoryData(f'{save_dir}/repository', themes)
+else:
+    print('themes.json not found in repository directory')
