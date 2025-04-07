@@ -20,7 +20,7 @@ def get_profiles(_args):
         print('No profiles available.')
         return
 
-    print('Available profiles:')
+    print('\nAvailable profiles:')
 
     for profile in zen_profiles:
         profile_id, profile_name = profile.split('.', 1)
@@ -45,7 +45,7 @@ def themes(args):
     if len(args) > 0:
         try:
             page = int(args[0])
-        except:
+        except Exception:
             pass
     if not repository.data or not repository.data.themes:
         print('No themes available.')
@@ -55,7 +55,7 @@ def themes(args):
     if page > maxpage:
         page = maxpage
 
-    print('Available themes')
+    print('\nAvailable themes')
     theme_names = list(repository.data.themes.keys())
     for x in range(page * 20, min((page + 1) * 20, len(theme_names))):
         if x >= len(theme_names):
