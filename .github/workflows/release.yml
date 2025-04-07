@@ -4,7 +4,7 @@ on: workflow_dispatch
 jobs:
   build:
     name: Build
-    uses: .github/workflows/build.yml
+    uses: ./.github/workflows/build.yml
   release:
     name: Release
     needs: [build]
