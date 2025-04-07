@@ -60,7 +60,7 @@ def delete_repository():
         raise NotADirectoryError('repository not found')
 
 
-data: Optional[RepositoryData] = None
+data: RepositoryData | None = None
 if os.path.isfile(save_dir + '/repository/themes.json'):
     with open(f'{save_dir}/repository/themes.json') as f:
         themes = json.load(f)
