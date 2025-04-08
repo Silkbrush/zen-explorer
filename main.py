@@ -1,11 +1,25 @@
 import customtkinter as tk
 import requests
 import time
+import sys
 from cli import repository
+from zen_explorer_core.repository import update_repository
 from PIL import Image
 from io import BytesIO
+# Ensure repository is updated/cloned before accessing data
+try:
+    update_repository()
+except Exception as e:
+    print(f"Failed to update repository: {e}", file=sys.stderr)
+    # Optionally exit if repository is essential
+    # sys.exit(1) 
 
 repo = repository.data
+
+# Check if repo is still None after update attempt (e.g., git failed)
+if repo is None:
+    print("Repository data could not be loaded. Exiting.", file=sys.stderr)
+    sys.exit(1)
 
 images = []
 allow_resize_on = time.time()
