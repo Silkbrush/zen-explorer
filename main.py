@@ -6,20 +6,13 @@ from cli import repository
 from zen_explorer_core.repository import update_repository
 from PIL import Image
 from io import BytesIO
-# Ensure repository is updated/cloned before accessing data
-try:
-    update_repository()
-except Exception as e:
-    print(f"Failed to update repository: {e}", file=sys.stderr)
-    # Optionally exit if repository is essential
-    # sys.exit(1) 
 
 repo = repository.data
 
-# Check if repo is still None after update attempt (e.g., git failed)
+# Check if repository is available
 if repo is None:
-    print("Repository data could not be loaded. Exiting.", file=sys.stderr)
-    sys.exit(1)
+    print("WARNING: Repository data could not be loaded. Some features may not be available.", file=sys.stderr)
+    print("Use the 'update' command to fetch the repository data.", file=sys.stderr)
 
 images = []
 allow_resize_on = time.time()
@@ -70,6 +63,16 @@ def update_main():
         child.destroy()
     images = []
     allow_resize_on = time.time()
+
+    # If repository is not available, show a message in the main content
+    if repo is None:
+        no_repo_label = tk.CTkLabel(
+            main_content, 
+            text="Repository data not available.\nUse the 'update' command to fetch the repository data.",
+            font=("Arial", 14)
+        )
+        no_repo_label.pack(pady=50)
+        return
 
     row = 0
     col = 0
