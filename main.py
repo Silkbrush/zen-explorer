@@ -8,7 +8,13 @@ from ui import MainContent, ThemesApp
 from ui import utils
 from cli import repository
 
+
 repo = repository.data
+
+# Check if repository is available
+if repo is None:
+    print("WARNING: Repository data could not be loaded. Some features may not be available.", file=sys.stderr)
+    print("Use the 'update' command to fetch the repository data.", file=sys.stderr)
 
 images = []
 allow_resize_on = time.time()
