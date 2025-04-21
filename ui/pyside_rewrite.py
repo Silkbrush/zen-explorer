@@ -11,11 +11,13 @@ from PySide6.QtWidgets import (
     QWidget,
     QLabel,
     QGridLayout,
+    QComboBox
 )
 import requests
 import os
 from PySide6.QtGui import Qt, QPixmap
 from zen_explorer_core.repository import RepositoryData
+from zen_explorer_core.profiles import get_profile_path, get_profiles
 
 class Theme_select(QWidget):
     def __init__(self, stacked_widget, repo: RepositoryData, max_col=3):
@@ -141,7 +143,8 @@ class TopBar(QWidget):
         self.main_layout.addLayout(self.profile_layout)
         
         self.create_navigation()
-        
+        self.create_profile_switcher()
+
     def create_navigation(self):
         for i, screen in enumerate(self.screens):
             button = QPushButton(screen.capitalize())
@@ -159,6 +162,38 @@ class TopBar(QWidget):
             """)
             self.navigator_layout.addWidget(button)
             print(f'Button {i} created')
+            button.clicked.connect(lambda _, i=i: self.show_screen(index=i))
+
+    def create_profile_switcher(self):
+        self.profiles_display = []
+        self.profiles = []
+        self.display_profile_to_profile = {}
+        print(get_profiles())
+
+        for profile in get_profiles():
+            profile_id, profile_name = profile.split('.', 1)
+            display_text = f'{profile_name} ({profile_id})'
+            self.profiles_display.append(display_text)
+            self.profiles.append(profile)
+            print(profile)
+            print(get_profile_path(profile))
+            self.display_profile_to_profile[display_text] = profile
+
+        # Create QComboBox instance for profile selection
+        self.option_combo_box = QComboBox()
+        self.option_combo_box.addItems(self.profiles_display)
+        self.option_combo_box.setPlaceholderText("Select profile")
+
+        # Connect the selection change signal to the slot
+        self.option_combo_box.currentIndexChanged.connect(self.user_select)
+
+        # Layout management
+        self.profile_layout.addWidget(self.option_combo_box)
+        self.option_combo_box.setGeometry(self.width() - 200, 10, 150, 30)  # Adjust geometry as needed
+
+    def user_select(self, profile):
+        print(f"Selected profile: {profile}")
+
             button.clicked.connect(lambda: self.show_screen(index=i))
 
     def show_screen(self, index):
