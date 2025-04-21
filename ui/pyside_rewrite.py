@@ -159,7 +159,7 @@ class TopBar(QWidget):
             """)
             self.navigator_layout.addWidget(button)
             print(f'Button {i} created')
-            button.clicked.connect(lambda _, i=i: self.show_screen(index=i))
+            button.clicked.connect(lambda: self.show_screen(index=i))
 
     def show_screen(self, index):
         print(f"Showing screen {index}")
