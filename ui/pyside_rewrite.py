@@ -19,7 +19,7 @@ from PySide6.QtGui import Qt, QPixmap
 from zen_explorer_core.repository import RepositoryData
 from zen_explorer_core.profiles import get_profile_path, get_profiles
 
-class Theme_select(QWidget):
+class ThemeSelect(QWidget):
     def __init__(self, stacked_widget, repo: RepositoryData, max_col=3):
         super().__init__()
         self.repo = repo
@@ -36,7 +36,7 @@ class Theme_select(QWidget):
         thumbnail = get_pixmap_from_url('https://raw.githubusercontent.com/greeeen-dev/natsumi-browser/refs/heads/main/images/home.png') # placeholder for now
         for index, theme in enumerate(self.repo.themes):
             print(f"Loading theme {theme} with index {index}")
-            theme_box = Theme_Box(self.repo.get_theme(theme), thumbnail)
+            theme_box = ThemeBox(self.repo.get_theme(theme), thumbnail)
             self.grid.addWidget(theme_box, index // self.max_col, index % self.max_col)
             self.theme_boxes.append(theme_box)
             
@@ -55,7 +55,7 @@ class Theme_select(QWidget):
             self.resize_themes()
             self.resize_allowed_time = time.time() + 0.1
 
-class Theme_Box(QWidget):
+class ThemeBox(QWidget):
     def __init__(self, theme_data, thumbnail):
         super().__init__()
         self.theme_data = theme_data
@@ -88,7 +88,7 @@ class NavUI(QWidget):
         layout = QHBoxLayout()
 
         self.screens = QStackedWidget()
-        self.screens.addWidget(Theme_select(self.screens, repo))
+        self.screens.addWidget(ThemeSelect(self.screens, repo))
         layout.addWidget(self.screens)
 
         # self.sidebar = QWidget()
@@ -127,6 +127,12 @@ class TopBar(QWidget):
         self.main_layout = QHBoxLayout(self)
         self.setLayout(self.main_layout)
         self.stacked_widget = stacked_widget
+
+        self.profiles_display = []
+        self.profiles = []
+        self.display_profile_to_profile = {}
+
+        self.option_combo_box: QComboBox | None = None
         
         self.screens = [
             'discover',
@@ -145,6 +151,10 @@ class TopBar(QWidget):
         self.create_navigation()
         self.create_profile_switcher()
 
+    def show_screen(self, index):
+        print(f"Showing screen {index}")
+        self.stacked_widget.setCurrentIndex(index)
+
     def create_navigation(self):
         for i, screen in enumerate(self.screens):
             button = QPushButton(screen.capitalize())
@@ -162,7 +172,7 @@ class TopBar(QWidget):
             """)
             self.navigator_layout.addWidget(button)
             print(f'Button {i} created')
-            button.clicked.connect(lambda _, i=i: self.show_screen(index=i))
+            button.clicked.connect(lambda: self.show_screen(index=i))
 
     def create_profile_switcher(self):
         self.profiles_display = []
@@ -195,10 +205,6 @@ class TopBar(QWidget):
         print(f"Selected profile: {profile}")
 
             button.clicked.connect(lambda: self.show_screen(index=i))
-
-    def show_screen(self, index):
-        print(f"Showing screen {index}")
-        self.stacked_widget.setCurrentIndex(index)
     
 class MainWindow(QMainWindow):
     def __init__(self, repo: RepositoryData):
@@ -226,8 +232,8 @@ def load_css(directory):
     with open(f"{directory}/style.css", "r") as f:
         _style = f.read()
         if os.path.isfile(f"{directory}/variables.txt"):
-            with open(f"{directory}/variables.txt", "r") as f:
-                _variables = f.read()
+            with open(f"{directory}/variables.txt", "r") as f2:
+                _variables = f2.read()
                 for line in _variables.splitlines():
                     line = line.replace(' ', '')
                     var = line.split(':')[0].strip()
