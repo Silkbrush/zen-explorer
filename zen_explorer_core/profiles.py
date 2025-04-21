@@ -1,6 +1,5 @@
 import os
 import sys
-import traceback
 from pathlib import Path
 
 home = str(Path.home())
@@ -57,9 +56,6 @@ def _get_paths():
 
         try:
             paths.append(_get_linux_path())
-        except Exception:
-            pass
-        try:
             paths.append(_get_flatpak_path())
         except Exception:
             if not paths:
@@ -77,19 +73,22 @@ def get_profile_path(profile):
 
 def get_profiles():
     paths = _get_paths()
+    print(f'\nChecking for profiles in {paths}')
     profiles = []
+    profile_includes_dirs = ['storage', 'extensions']  # Example list of required directories
     for path in paths:
-        profiles.extend(os.listdir(path))
+        possible_profiles = os.listdir(path)
 
-        for profile in profiles:
-            # check if profile is a path
-            if not os.path.isdir(f'{path}/{profile}') or profile.startswith('.') or profile.endswith('.ini'):
-                profiles.remove(profile)
+        for profile in possible_profiles:
+            print(f'\nfound possible profile: {profile}')
+            if os.path.isdir(f'{path}/{profile}') and not profile.startswith('.'):
+                # Check if all required directories are present within the profile
+                if all(os.path.isdir(f'{path}/{profile}/{req_dir}') for req_dir in profile_includes_dirs):
+                    print(f'adding valid profile: {profile}')
+                    profiles.append(profile)
+                else:
+                    print(f'profile missing required directories: {profile}')
             else:
-                try: 
-                    profile_id, profile_name = profile.split('.', 1)
-                except ValueError:
-                    profiles.remove(profile)
-                            
+                print(f'ignoring invalid profile: {profile}')
 
     return profiles

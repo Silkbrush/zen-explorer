@@ -29,48 +29,12 @@ def _build_css(data):
 
 def _apply_css(path, data):
     chrome, content = _build_css(data)
-    
-    # Preserve existing user CSS that's not managed by zen-explorer
-    existing_chrome_content = ""
-    existing_content_content = ""
-    
-    # Extract user's custom CSS from userChrome.css if it exists
-    if os.path.exists(f'{path}/chrome/userChrome.css'):
-        with open(f'{path}/chrome/userChrome.css', 'r') as f:
-            existing_chrome = f.read()
-            # Strip out any zen-explorer theme imports
-            user_lines = []
-            for line in existing_chrome.split('\n'):
-                if not ('zen-explorer-themes' in line and '@import url' in line):
-                    user_lines.append(line)
-            existing_chrome_content = '\n'.join(user_lines).strip()
-            
-    # Extract user's custom CSS from userContent.css if it exists
-    if os.path.exists(f'{path}/chrome/userContent.css'):
-        with open(f'{path}/chrome/userContent.css', 'r') as f:
-            existing_content = f.read()
-            # Strip out any zen-explorer theme imports
-            user_lines = []
-            for line in existing_content.split('\n'):
-                if not ('zen-explorer-themes' in line and '@import url' in line):
-                    user_lines.append(line)
-            existing_content_content = '\n'.join(user_lines).strip()
-    
-    # Combine zen-explorer imports with user's custom CSS
-    final_chrome = chrome
-    if existing_chrome_content:
-        final_chrome = chrome + "\n\n/* User's custom CSS */\n" + existing_chrome_content
-        
-    final_content = content
-    if existing_content_content:
-        final_content = content + "\n\n/* User's custom CSS */\n" + existing_content_content
-    
-    # Write combined content back to files
+
     with open(f'{path}/chrome/userChrome.css', 'w+') as f:
-        f.write(final_chrome)
+        f.write(chrome)
 
     with open(f'{path}/chrome/userContent.css', 'w+') as f:
-        f.write(final_content)
+        f.write(content)
 
 def _profile_path(profile):
     return profiles.get_profile_path(profile)
@@ -94,6 +58,7 @@ def check_installed(profile):
     return os.path.isdir(f'{path}/chrome') and os.path.isfile(f'{path}/chrome/zen-explorer.json')
 
 def install_theme(profile, theme_id, bypass_install=False, staging=False):
+    print(f'trying to install theme: {theme_id}')
     profile = _profile_exists(profile)
     if (check_userchrome(profile) or check_usercontent(profile)) and not check_installed(profile) and not bypass_install:
         raise RuntimeError('userchrome or usercontent already exists, set bypass_install to True to bypass')

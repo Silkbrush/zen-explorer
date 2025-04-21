@@ -16,10 +16,9 @@ class RepositoryData:
         for zen_theme in self._raw_data:
             if not os.path.isfile(f'{self._path}/themes/{zen_theme}/theme.json'):
                 continue
-
             with open(f'{self._path}/themes/{zen_theme}/theme.json') as f:
                 install_data = json.load(f)
-            self._themes[zen_theme] = theme.Theme(self._raw_data[zen_theme], install_data)
+            self._themes[zen_theme] = theme.Theme(self._raw_data[zen_theme], install_data=install_data, _id=zen_theme)
 
     @property
     def path(self):
@@ -60,7 +59,7 @@ def delete_repository():
         raise NotADirectoryError('repository not found')
 
 
-data: Optional[RepositoryData] = None
+data: RepositoryData | None = None
 if os.path.isfile(save_dir + '/repository/themes.json'):
     with open(f'{save_dir}/repository/themes.json') as f:
         themes = json.load(f)

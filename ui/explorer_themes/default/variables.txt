@@ -1,0 +1,6 @@
+@primary-color: #3498db
+@secondary-color: #e74c3c
+@border-color: #2ecc71
+@border-radius: 10px
+@border-width: 2px
+@border-style: solid

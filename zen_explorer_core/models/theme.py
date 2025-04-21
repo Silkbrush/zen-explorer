@@ -1,15 +1,22 @@
 from enum import Enum
 from datetime import datetime
 
+from customtkinter import S
+
 class ThemeType(Enum):
     bundle = 0
     chrome = 1
     content = 2
 
 class Theme:
-    def __init__(self, data: dict, install_data: dict):
+    def __init__(self, data: dict, install_data: dict, _id=None):
         self._raw_data: dict = data
         self._raw_install_data: dict = install_data
+        self._id = _id
+    
+    @property
+    def id(self) -> str:
+        return self._id
 
     @property
     def name(self) -> str:
