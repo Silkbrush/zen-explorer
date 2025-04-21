@@ -1,8 +1,6 @@
 from enum import Enum
 from datetime import datetime
 
-from customtkinter import S
-
 class ThemeType(Enum):
     bundle = 0
     chrome = 1

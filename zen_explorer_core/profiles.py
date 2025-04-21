@@ -4,6 +4,7 @@ from pathlib import Path
 
 home = str(Path.home())
 
+
 def _get_macos_path():
     path = home + '/Library/Application Support/zen/Profiles'
 
@@ -11,6 +12,7 @@ def _get_macos_path():
         raise NotADirectoryError('Zen Browser is not installed')
 
     return path
+
 
 def _get_windows_path():
     path = home + '/AppData/Roaming/zen/Profiles'
@@ -20,10 +22,11 @@ def _get_windows_path():
 
     return path
 
+
 def _get_linux_path():
     zen_path = home + '/.zen'
     path = home + '/.zen/Profiles'
-    
+
     if os.path.exists(zen_path):
         if os.path.exists(path):
             return path
@@ -34,7 +37,6 @@ def _get_linux_path():
             
     raise NotADirectoryError('Zen Browser is not installed')
 
-    
 
 def _get_flatpak_path():
     path = home + '/.var/app/app.zen_browser.zen/.zen'
@@ -55,9 +57,12 @@ def _get_paths():
         paths = []
 
         try:
-            paths.append(_get_linux_path())
             paths.append(_get_flatpak_path())
-        except Exception:
+        except:
+            pass
+        try:
+            paths.append(_get_linux_path())
+        except:
             if not paths:
                 raise
 
@@ -73,22 +78,15 @@ def get_profile_path(profile):
 
 def get_profiles():
     paths = _get_paths()
-    print(f'\nChecking for profiles in {paths}')
     profiles = []
     profile_includes_dirs = ['storage', 'extensions']  # Example list of required directories
     for path in paths:
         possible_profiles = os.listdir(path)
 
         for profile in possible_profiles:
-            print(f'\nfound possible profile: {profile}')
-            if os.path.isdir(f'{path}/{profile}') and not profile.startswith('.'):
+            if os.path.isdir(f'{path}/{profile}') and not profile.startswith('.') and not profile.endswith('.ini'):
                 # Check if all required directories are present within the profile
                 if all(os.path.isdir(f'{path}/{profile}/{req_dir}') for req_dir in profile_includes_dirs):
-                    print(f'adding valid profile: {profile}')
                     profiles.append(profile)
-                else:
-                    print(f'profile missing required directories: {profile}')
-            else:
-                print(f'ignoring invalid profile: {profile}')
 
     return profiles
