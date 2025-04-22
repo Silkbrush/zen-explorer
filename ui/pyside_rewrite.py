@@ -192,7 +192,7 @@ class ThemeBrowseScreen(QWidget):
         print(f"{self.repo.themes}")
         for index, (theme_id, theme_data) in enumerate(self.repo.themes.items()):
             print(f"Loading theme {theme_id} with index {index}")
-            theme_box = Theme_Box(self.repo.get_theme(theme_id), thumbnail)
+            theme_box = ThemeBox(self.repo.get_theme(theme_id), thumbnail)
             theme_box.clicked.connect(lambda checked=False, theme=theme_data: self.load_theme(theme))
             self.grid.addWidget(theme_box, index // self.max_col, index % self.max_col)
             self.theme_boxes.append(theme_box)
@@ -228,7 +228,7 @@ class ThemeBrowseScreen(QWidget):
             self.resize_themes()
             self.resize_allowed_time = time.time() + 0.4
 
-class Theme_Box(QWidget):
+class ThemeBox(QWidget):
     clicked = Signal()  # Define the signal at class level for PySide6
 
     def __init__(self, theme_data, thumbnail):
