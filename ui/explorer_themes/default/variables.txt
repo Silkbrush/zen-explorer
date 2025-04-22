@@ -1,6 +1,4 @@
-@primary-color: #3498db
-@secondary-color: #e74c3c
-@border-color: #2ecc71
-@border-radius: 10px
-@border-width: 2px
-@border-style: solid
+@primary-color: #E58E27
+@window-background: #00000000
+@transparent-glass-color: #33000000
+@navbutton-hover-color: #555555

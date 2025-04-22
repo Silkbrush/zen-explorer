@@ -5,8 +5,9 @@ from PySide6.QtWidgets import (
     QLabel,
 )
 from PySide6.QtGui import Qt, QPixmap
+from .styled_widget import StyledWidget
 
-class ThemeBox(QWidget):
+class ThemeBox(StyledWidget):
     clicked = Signal()  # Define the signal at class level for PySide6
 
     def __init__(self, theme_data, thumbnail):

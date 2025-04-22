@@ -2,6 +2,8 @@ import sys
 from PySide6.QtWidgets import (
     QApplication,
 )
+from PySide6.QtCore import Qt
+
 from zen_explorer_core.repository import update_repository
 from zen_explorer_core import repository
 from .main_window import MainWindow
@@ -15,5 +17,4 @@ def main():
     
     window = MainWindow(repo)
     window.show()
-    app.setStyle
     sys.exit(app.exec())

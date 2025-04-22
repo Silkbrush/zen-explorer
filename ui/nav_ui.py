@@ -22,11 +22,11 @@ class NavUI(QWidget):
         layout.addWidget(self.screens)
 
         self.topbar = TopBar(self)
-        bottom_bar_layout = QHBoxLayout()
-        bottom_bar_layout.addWidget(QLabel("Bottom Bar"))
-        bottom_bar_layout.addStretch()
+        self.topbar.setObjectName("TopBar")
+        top_bar_layout = QHBoxLayout()
+        top_bar_layout.addWidget(self.topbar)
         main_layout = QVBoxLayout(self)
-        main_layout.addWidget(self.topbar)
+        main_layout.addLayout(top_bar_layout)
         main_layout.addLayout(layout)
 
 

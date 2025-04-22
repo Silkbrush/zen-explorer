@@ -1,18 +1,18 @@
 from PySide6.QtWidgets import (
     QPushButton,
     QHBoxLayout,
-    QWidget,
     QComboBox,
 )
 from zen_explorer_core.profiles import get_profile_path, get_profiles
+from .styled_widget import StyledWidget
 
-class TopBar(QWidget):
+class TopBar(StyledWidget):
     def __init__(self, navui):
         super().__init__()
         self.setObjectName("TopBar")
         self.setProperty("type", "navigation")
         self.main_layout = QHBoxLayout(self)
-        self.main_layout.setContentsMargins(0, 10, 0, 10)  # Zero horizontal margins
+        self.main_layout.setContentsMargins(10, 10, 10, 10)  # Zero horizontal margins
         self.main_layout.setSpacing(10) 
         self.setLayout(self.main_layout)
         self.navui = navui
@@ -65,6 +65,7 @@ class TopBar(QWidget):
     def create_navigation(self):
         for i, screen in enumerate(self.screens):
             button = QPushButton(screen.capitalize())
+            button.setProperty('type', 'navbutton')
             button.setStyleSheet("""
                 QPushButton {
                     background-color: transparent;
@@ -78,7 +79,6 @@ class TopBar(QWidget):
                 }
             """)
             self.navigator_layout.addWidget(button)
-            print(f'Button {i} created')
             button.clicked.connect(lambda _, i=i: self.show_screen(index=i))
 
     def create_profile_switcher(self):
@@ -100,7 +100,8 @@ class TopBar(QWidget):
         self.option_combo_box = QComboBox()
         self.option_combo_box.addItems(self.profiles_display)
         self.option_combo_box.setPlaceholderText("Select profile")
-
+        self.option_combo_box.setObjectName("ProfileSelector")
+        
         # Connect the selection change signal to the slot
         self.option_combo_box.currentIndexChanged.connect(self.user_select)
 

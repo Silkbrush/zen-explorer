@@ -1,7 +1,30 @@
 QMainWindow {
-    background-color: transparent; t
+    background-color: @window-background;
 }
 
-QWidget[type='navigation'] {
-    background-color: red;
+#TopBar {
+    background-color: @transparent-glass-color;
+    border-radius: 10px;
+}
+
+QPushButton[type="navbutton"] {
+    background-color: transparent;
+    border: none;
+}
+QPushButton[type="navbutton"]:hover {
+    color: @navbutton-hover-color;
+}
+QPushButton[type="navbutton"]:pressed {
+    color: @primary-color;
+}
+
+#ProfileSelector {
+    background-color: transparent;
+    border: none;
+}
+#ProfileSelector:hover {
+    color: @navbutton-hover-color;
+}
+#ProfileSelector:pressed {
+    color: @transparent-glass-color;
 }
