@@ -4,3 +4,4 @@ requests
 Pillow
 PySide6
 pygithub
+markdown

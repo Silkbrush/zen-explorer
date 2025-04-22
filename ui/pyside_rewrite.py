@@ -43,14 +43,14 @@ class ThemeScreen(QWidget):
         self.thumbnail = get_pixmap_from_url('https://raw.githubusercontent.com/greeeen-dev/natsumi-browser/refs/heads/main/images/home.png')  # in the future theme.thumbnail
         self.create_widgets()
         print(f'Theme loaded: {self.name}')
-        
+
     def install_theme(self, profile_id):
 
-    
+
         if not repository.data or not repository.data.themes:
             print('No themes available.')
             return
-            
+
         print(f'Installing {self.id} by {self.author}...')
         try:
             installer.install_theme(profile_id, self.id)
@@ -58,7 +58,7 @@ class ThemeScreen(QWidget):
             print('Failed to install theme.')
             raise
         print('Theme installed.')
-        
+
     def create_widgets(self):
         self.main_box = QVBoxLayout()
 
@@ -306,7 +306,7 @@ class NavUI(QWidget):
 
     def resizeEvent(self, event):
         super().resizeEvent(event)
-        
+
     def get_current_screen(self):
         return self.screens.currentWidget()
 
@@ -347,8 +347,8 @@ class TopBar(QWidget):
         self.install_btn.clicked.connect(lambda _: self.install(self.display_profile_to_profile[self.option_combo_box.currentText()]))
         self.install_btn.hide()
         self.profile_layout.addWidget(profile_switcher)
-        
-        
+
+
     def install(self, profile_id):
         print('Installing...')
         try:
@@ -388,7 +388,7 @@ class TopBar(QWidget):
             """)
             self.navigator_layout.addWidget(button)
             print(f'Button {i} created')
-            button.clicked.connect(lambda _, i=i: self.show_screen(index=i))
+            button.clicked.connect(lambda: self.show_screen(index=i))
 
     def create_profile_switcher(self):
         self.profiles_display = []
@@ -414,7 +414,7 @@ class TopBar(QWidget):
         self.option_combo_box.currentIndexChanged.connect(self.user_select)
 
         # Layout management
-        
+
         self.option_combo_box.setGeometry(self.width() - 200, 10, 150, 30)  # Adjust geometry as needed
         return self.option_combo_box
 
