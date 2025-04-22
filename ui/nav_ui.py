@@ -25,8 +25,6 @@ class NavUI(QWidget):
         bottom_bar_layout = QHBoxLayout()
         bottom_bar_layout.addWidget(QLabel("Bottom Bar"))
         bottom_bar_layout.addStretch()
-
-        # Wrap central layout and bottom bar in a vertical layout
         main_layout = QVBoxLayout(self)
         main_layout.addWidget(self.topbar)
         main_layout.addLayout(layout)

@@ -12,6 +12,8 @@ class TopBar(QWidget):
         self.setObjectName("TopBar")
         self.setProperty("type", "navigation")
         self.main_layout = QHBoxLayout(self)
+        self.main_layout.setContentsMargins(0, 10, 0, 10)  # Zero horizontal margins
+        self.main_layout.setSpacing(10) 
         self.setLayout(self.main_layout)
         self.navui = navui
 

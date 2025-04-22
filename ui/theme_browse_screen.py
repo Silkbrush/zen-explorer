@@ -28,8 +28,8 @@ class ThemeBrowseScreen(QWidget):
         thumbnail = get_pixmap_from_url('https://raw.githubusercontent.com/greeeen-dev/natsumi-browser/refs/heads/main/images/home.png') # placeholder for now
         print(f"{self.repo.themes}")
         for index, (theme_id, theme_data) in enumerate(self.repo.themes.items()):
-            print(f"Loading theme {theme_id} with index {index}")
             theme_box = ThemeBox(self.repo.get_theme(theme_id), thumbnail)
+            theme_box.setProperty('type', 'navigation')
             theme_box.clicked.connect(lambda checked=False, theme=theme_data: self.load_theme(theme))
             self.grid.addWidget(theme_box, index // self.max_col, index % self.max_col)
             self.theme_boxes.append(theme_box)

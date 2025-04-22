@@ -24,7 +24,7 @@ def get_profiles(_args):
 
     for profile in zen_profiles:
         profile_id, profile_name = profile.split('.', 1)
-        print(f'{profile_name} ({profile_id})')
+        print(f'{profile_name} ({profile_id})')`
 
 def update_repository(args):
     print('Updating repository...')

@@ -1,5 +1,7 @@
-QWidget [type="navigation"]{
-    background-color: @primary-color;
-    border-radius: @border-radius;
-    border: @border-width @border-style @border-color;
+QMainWindow {
+    background-color: transparent; t
+}
+
+QWidget[type='navigation'] {
+    background-color: red;
 }
