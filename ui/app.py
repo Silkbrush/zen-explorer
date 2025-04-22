@@ -83,12 +83,7 @@ class ThemesApp(tk.CTk):
         if not repository.data or not repository.data.themes:
             print('No themes available.')
             return
-    
-        # theme_data = repository.data.get_theme(zen_theme)
-        # if not theme_data:
-        #     print('Theme not found.')
-        #     return
-    
+            
         print(f'Installing {zen_theme.id} by {zen_theme.author}...')
         try:
             installer.install_theme(profile, zen_theme.id)
