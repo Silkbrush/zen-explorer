@@ -1,7 +1,7 @@
 import sys
 import time
-from typing_extensions import Never
-from PySide6.QtCore import QSize, Signal
+from typing import Optional
+from PySide6.QtCore import Signal
 from PySide6.QtWidgets import (
     QApplication,
     QMainWindow,
@@ -19,7 +19,7 @@ from zen_explorer_core import installer
 from zen_explorer_core.models.theme import Theme
 import requests
 import os
-from PySide6.QtGui import Qt, QPixmap, QTextDocument
+from PySide6.QtGui import Qt, QPixmap
 from zen_explorer_core.repository import RepositoryData
 from zen_explorer_core.profiles import get_profile_path, get_profiles
 from zen_explorer_core.repository import update_repository
@@ -32,6 +32,16 @@ class ThemeScreen(QWidget):
     def __init__(self, controller):
         super().__init__(controller)
         self.controller = controller
+        self.id: Optional[str] = None
+        self.github: Optional[Github] = None
+        self.name: Optional[str] = None
+        self.author: Optional[str] = None
+        self.description: Optional[str] = None
+        self.homepage: Optional[str] = None
+        self.thumbnail: Optional[QPixmap] = None
+        self.main_box: Optional[QVBoxLayout] = None
+        self.thumbnail_label: Optional[QLabel] = None
+        self.scrollable_area: Optional[QScrollArea] = None
 
     def load_theme(self, theme: Theme):
         self.id = theme.id
@@ -45,8 +55,6 @@ class ThemeScreen(QWidget):
         print(f'Theme loaded: {self.name}')
 
     def install_theme(self, profile_id):
-
-
         if not repository.data or not repository.data.themes:
             print('No themes available.')
             return
@@ -126,7 +134,7 @@ class ThemeScreen(QWidget):
             pattern = r"^https?://github\.com/([^/]+/[^/]+)"
             match = re.search(pattern, self.homepage)
             return self.github.get_repo(match.group(1)).get_readme().decoded_content.decode('utf-8')
-        except Exception as e:
+        except Exception:
             return 'No README available'
 
     def get_readme_item(self):
@@ -169,9 +177,10 @@ class ThemeScreen(QWidget):
         super().resizeEvent(event)
 
     def resize_thumbnail(self):
-        self.thumbnail_label.setPixmap(self.thumbnail.scaled(int(self.width()/3), int(self.height()/3),
-            Qt.AspectRatioMode.KeepAspectRatio,
-            Qt.TransformationMode.SmoothTransformation))
+        self.thumbnail_label.setPixmap(self.thumbnail.scaled(
+            int(self.width()/3), int(self.height()/3),Qt.AspectRatioMode.KeepAspectRatio,
+            Qt.TransformationMode.SmoothTransformation
+        ))
 
 class ThemeBrowseScreen(QWidget):
     def __init__(self, navui, repo: RepositoryData, max_col=3):
@@ -300,8 +309,6 @@ class NavUI(QWidget):
         main_layout = QVBoxLayout(self)
         main_layout.addWidget(self.topbar)
         main_layout.addLayout(layout)
-
-
         self.setLayout(main_layout)
 
     def resizeEvent(self, event):
@@ -348,6 +355,10 @@ class TopBar(QWidget):
         self.install_btn.hide()
         self.profile_layout.addWidget(profile_switcher)
 
+        self.profiles_display: list = []
+        self.profiles: list = []
+        self.display_profile_to_profile: dict = {}
+        self.option_combo_box: Optional[QComboBox] = None
 
     def install(self, profile_id):
         print('Installing...')
@@ -356,7 +367,7 @@ class TopBar(QWidget):
         except Exception as e:
             print(f'Error installing: {e}')
 
-    def toggle_install_btn_visibility(self, val: bool|None = None):
+    def toggle_install_btn_visibility(self, val: bool | None = None):
         if val is None:
             new_visibility = not self.install_btn.isVisible()
         else:
@@ -369,7 +380,6 @@ class TopBar(QWidget):
         else:
             print('Button hidden')
             self.install_btn.hide()
-
 
     def create_navigation(self):
         for i, screen in enumerate(self.screens):
@@ -451,14 +461,15 @@ def load_css(directory):
     with open(f"{directory}/style.css", "r") as f:
         _style = f.read()
         if os.path.isfile(f"{directory}/variables.txt"):
-            with open(f"{directory}/variables.txt", "r") as f:
-                _variables = f.read()
+            with open(f"{directory}/variables.txt", "r") as f2:
+                _variables = f2.read()
                 for line in _variables.splitlines():
                     line = line.replace(' ', '')
                     var = line.split(':')[0].strip()
                     val = line.split(':')[1].strip()
                     _style = _style.replace(f"{var}", val)
         return _style
+
 
 if __name__ == "__main__":
     main()
