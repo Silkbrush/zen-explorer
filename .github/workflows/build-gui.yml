@@ -32,7 +32,7 @@ jobs:
           disable-cache: true
           macos-app-name: Zen Explorer
           enable-plugins: pyside6
-          include-data-dir: explorer_ui/assets, explorer_ui/explorer_themes
+          include-data-dir: explorer_ui/assets=explorer_ui/explorer_themes
       - name: Rename (Linux)
         if: ${{ matrix.os == 'ubuntu-latest' }}
         run: mv build/main_rewrite.bin build/zen-explorer-gui
