@@ -5,6 +5,7 @@ from zen_explorer_core.models import theme
 from explorer_ui.components import topbar, content
 from explorer_ui.models import pages, profiles as profile_models
 from explorer_ui.pages import discover, overview
+from explorer_ui.utils import images
 
 
 class MainWindow(QMainWindow):
@@ -48,6 +49,10 @@ class MainWindow(QMainWindow):
         self.page: pages.Pages = pages.Pages.discover
         self.profile: profile_models.Profile = self.profiles[0]
         self.theme: Optional[theme.Theme] = None
+        self.thumbnails = {}
+        self.default_thumbnail = images.get_pixmap(
+            'https://raw.githubusercontent.com/greeeen-dev/natsumi-browser/refs/heads/main/images/home.png'
+        )
 
         # Internal variables
         self.__ready = False

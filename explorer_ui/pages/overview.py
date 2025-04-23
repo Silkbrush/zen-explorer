@@ -10,7 +10,6 @@ from PySide6.QtGui import Qt
 from zen_explorer_core import repository
 import re
 import markdown
-from explorer_ui.utils import images
 from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
@@ -28,9 +27,7 @@ class ThemeScreen(QWidget):
         if not root.theme:
             raise ValueError('theme is not set')
 
-        self.thumbnail = images.get_pixmap(
-            'https://raw.githubusercontent.com/greeeen-dev/natsumi-browser/refs/heads/main/images/home.png'
-        )
+        self.thumbnail = self._root.thumbnails.get(self.theme.id, self._root.default_thumbnail)
 
         # Create widgets
         self.wrapper = QVBoxLayout()
@@ -158,4 +155,3 @@ class ThemeScreen(QWidget):
     def resize(self, width):
         self.setMinimumWidth(width)
         self.setMaximumWidth(width)
-        print('resized')

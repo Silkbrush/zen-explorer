@@ -6,6 +6,7 @@ from PySide6.QtWidgets import (
 from explorer_ui.utils import images
 from explorer_ui.components import theme_box as theme_box_component
 from typing import TYPE_CHECKING, Any
+import threading
 
 if TYPE_CHECKING:
     from explorer_ui.components.main import MainWindow
@@ -31,19 +32,27 @@ class ThemeBrowseScreen(QWidget):
         self.resize(self._root.width())
 
     def load_themes(self):
-        default_thumbnail = images.get_pixmap('https://raw.githubusercontent.com/greeeen-dev/natsumi-browser/refs/heads/main/images/home.png') # placeholder for now
         print(f"{self.repo.themes}")
+
+        def get_thumbnail(theme,url):
+            try:
+                self._root.thumbnails[theme] = images.get_pixmap(url)
+            except:
+                pass
+
+        threads = []
+        for index, (theme_id, theme_data) in enumerate(self.repo.themes.items()):
+            if theme_data.thumbnail and not theme_id in self._root.thumbnails.keys():
+                thread = threading.Thread(target=get_thumbnail, args=(theme_id, theme_data.thumbnail))
+                thread.start()
+                threads.append(thread)
+
+        for thread in threads:
+            thread.join()
+
         for index, (theme_id, theme_data) in enumerate(self.repo.themes.items()):
             print(f"Loading theme {theme_id} with index {index}")
-
-            if theme_data.thumbnail:
-                try:
-                    thumbnail = images.get_pixmap(theme_data.thumbnail)
-                except:
-                    thumbnail = default_thumbnail
-            else:
-                thumbnail = default_thumbnail
-
+            thumbnail = self._root.thumbnails.get(theme_id, self._root.default_thumbnail)
             theme_box = theme_box_component.ThemeBox(self._root, self.repo.get_theme(theme_id), thumbnail)
             theme_box.clicked.connect(lambda checked=False, theme=theme_data: self.load_theme(theme))
             self.grid.addWidget(theme_box, index // self.max_col, index % self.max_col)
