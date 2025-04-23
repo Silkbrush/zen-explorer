@@ -30,6 +30,7 @@ jobs:
           script-name: main_rewrite.py
           mode: app
           disable-cache: true
+          macos-app-name: Zen Explorer
       - name: Rename (Linux)
         if: ${{ matrix.os == 'ubuntu-latest' }}
         run: mv build/main_rewrite.bin build/zen-explorer-gui
@@ -38,7 +39,7 @@ jobs:
         run: mv build/main_rewrite.app build/Zen\ Explorer.app
       - name: Rename (PowerShell)
         if: ${{ matrix.os == 'windows-latest' }}
-        run: Rename-Item -Path build/cli.exe -NewName zen-explorer.exe
+        run: Rename-Item -Path build/main_rewrite.exe -NewName zen-explorer-gui.exe
       - name: Compress to ZIP (macOS)
         if: ${{ matrix.os == 'macos-latest' }}
         run: zip -r zen-explorer-${{ matrix.os }}.zip build/Zen\ Explorer.app
@@ -47,7 +48,7 @@ jobs:
         if: ${{ matrix.os == 'ubuntu-latest' }}
         with:
           name: zen-explorer-${{ matrix.os }}
-          path: build/zen-explorer-${{ matrix.os }}
+          path: build/zen-explorer-gui
       - name: Upload package (macOS)
         uses: actions/upload-artifact@v4
         if: ${{ matrix.os == 'macos-latest' }}
@@ -59,4 +60,4 @@ jobs:
         if: ${{ matrix.os == 'windows-latest' }}
         with:
           name: zen-explorer-${{ matrix.os }}
-          path: build/zen-explorer.exe
+          path: build/zen-explorer-gui.exe
