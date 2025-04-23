@@ -57,22 +57,22 @@ jobs:
           output-dir: build_intel
       - name: Rename (Linux)
         if: ${{ matrix.os == 'ubuntu-latest' }}
-        run: mv build/main_rewrite.bin build/silkthemes-gui
+        run: mv build/main_rewrite.bin build/silkthemes
       - name: Rename (macOS)
         if: ${{ matrix.os == 'macos-latest' }}
         run: mv build/main_rewrite.app build/Silkthemes.app; mv build_intel/main_rewrite.app build_intel/Silkthemes.app
       - name: Rename (PowerShell)
         if: ${{ matrix.os == 'windows-latest' }}
-        run: Rename-Item -Path build/main_rewrite.exe -NewName silkthemes-gui.exe
+        run: Rename-Item -Path build/main_rewrite.exe -NewName silkthemes.exe
       - name: Compress to ZIP (macOS)
         if: ${{ matrix.os == 'macos-latest' }}
-        run: cd build; zip -r ../silkthemes-gui-aarch64.zip ./Silkthemes.app; cd ../build_intel; zip -r ../silkthemes-gui-x86_64.zip ./Silkthemes.app
+        run: cd build; zip -r ../silkthemes-aarch64.zip ./Silkthemes.app; cd ../build_intel; zip -r ../silkthemes-x86_64.zip ./Silkthemes.app
       - name: Upload package (Linux)
         uses: actions/upload-artifact@v4
         if: ${{ matrix.os == 'ubuntu-latest' }}
         with:
-          name: silkthemes-gui-linux
-          path: build/silkthemes-gui
+          name: silkthemes-linux-x86_64
+          path: build/silkthemes
       - name: Upload package (macOS arm64)
         uses: actions/upload-artifact@v4
         if: ${{ matrix.os == 'macos-latest' }}
