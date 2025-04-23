@@ -52,6 +52,10 @@ class Theme:
         return self._raw_data.get('homepage')
 
     @property
+    def thumbnail(self) -> str:
+        return self._raw_data.get('thumbnail')
+
+    @property
     def version(self) -> str:
         return self._raw_data.get('version')
 

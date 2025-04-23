@@ -151,9 +151,11 @@ class ThemeScreen(QWidget):
 
         return text_label
 
-    def resize_event(self, event):
+    def resizeEvent(self, event):
         self.resize(self.parentWidget().width())
         super().resizeEvent(event)
 
     def resize(self, width):
         self.setMinimumWidth(width)
+        self.setMaximumWidth(width)
+        print('resized')

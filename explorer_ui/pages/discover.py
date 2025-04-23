@@ -31,10 +31,19 @@ class ThemeBrowseScreen(QWidget):
         self.resize(self._root.width())
 
     def load_themes(self):
-        thumbnail = images.get_pixmap('https://raw.githubusercontent.com/greeeen-dev/natsumi-browser/refs/heads/main/images/home.png') # placeholder for now
+        default_thumbnail = images.get_pixmap('https://raw.githubusercontent.com/greeeen-dev/natsumi-browser/refs/heads/main/images/home.png') # placeholder for now
         print(f"{self.repo.themes}")
         for index, (theme_id, theme_data) in enumerate(self.repo.themes.items()):
             print(f"Loading theme {theme_id} with index {index}")
+
+            if theme_data.thumbnail:
+                try:
+                    thumbnail = images.get_pixmap(theme_data.thumbnail)
+                except:
+                    thumbnail = default_thumbnail
+            else:
+                thumbnail = default_thumbnail
+
             theme_box = theme_box_component.ThemeBox(self._root, self.repo.get_theme(theme_id), thumbnail)
             theme_box.clicked.connect(lambda checked=False, theme=theme_data: self.load_theme(theme))
             self.grid.addWidget(theme_box, index // self.max_col, index % self.max_col)

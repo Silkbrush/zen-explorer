@@ -31,7 +31,8 @@ def _append_to_file(path, line):
     with open(path, 'r') as f:
         lines = f.readlines()
 
-    userchrome = [line[:-2] for line in lines if line.endswith('\n')]
+    userchrome = [line[:-1] for line in lines if line.endswith('\n')]
+    print(line, userchrome, line in userchrome)
     if not line in userchrome:
         lines.insert(0, f'{line}\n')
         with open(path, 'w+') as f:
@@ -105,6 +106,13 @@ def install_theme(profile, theme_id, bypass_install=False, staging=False):
         with open(f'{_profile_path(profile)}/chrome/zen-explorer.json', 'r') as f:
             new_data = json.load(f)
 
+    new_data[theme_id] = {
+        'version': zen_theme.version,
+        'updatedAt': zen_theme.updated_at.timestamp(),
+        'uclChromeTarget': zen_theme.chrome_targets,
+        'uclContentTarget': zen_theme.content_targets
+    }
+
     theme_path = f'{repository.repository_path()}/themes/{theme_id}'
     profile_path = _profile_path(profile)
 
@@ -135,13 +143,6 @@ def install_theme(profile, theme_id, bypass_install=False, staging=False):
         print(content)
     else:
         _apply_css(profile_path, new_data)
-
-    new_data[theme_id] = {
-        'version': zen_theme.version,
-        'updatedAt': zen_theme.updated_at.timestamp(),
-        'uclChromeTarget': zen_theme.chrome_targets,
-        'uclContentTarget': zen_theme.content_targets
-    }
 
     if not staging:
         if not os.path.isdir(f'{_profile_path(profile)}/chrome'):
