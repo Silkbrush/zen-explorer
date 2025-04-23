@@ -16,6 +16,11 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: '3.12'
+      - name: Download icons
+        uses: actions/checkout@v4
+        with:
+          repository: Silkbrush/assets
+          path: assets
       - name: Install dependencies
         run: pip install -r requirements.txt
       - name: Install zip
@@ -33,6 +38,8 @@ jobs:
           macos-app-name: Zen Explorer
           enable-plugins: pyside6
           include-data-dir: explorer_ui/assets=explorer_ui/explorer_themes
+          macos-app-icon: assets/app-icons/silkbrush-mac.icns
+          windows-icon-from-ico: assets/app-icons/silkbrush-windows.ico
       - name: Rename (Linux)
         if: ${{ matrix.os == 'ubuntu-latest' }}
         run: mv build/main_rewrite.bin build/zen-explorer-gui
