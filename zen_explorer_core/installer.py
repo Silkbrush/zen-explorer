@@ -47,12 +47,14 @@ def _apply_css(path, data):
         f.write(content)
 
     if os.path.isfile(f'{path}/chrome/userChrome.css'):
+        shutil.copyfile(f'{path}/chrome/userChrome.css', f'{path}/chrome/userChrome.css.bak')
         _append_to_file(f'{path}/chrome/userChrome.css', '@import url("silkthemes-chrome.css");')
     else:
         with open(f'{path}/chrome/userChrome.css', 'w+') as f:
             f.write('@import url("silkthemes-chrome.css");')
 
     if os.path.isfile(f'{path}/chrome/userContent.css'):
+        shutil.copyfile(f'{path}/chrome/userContent.css', f'{path}/chrome/userContent.css.bak')
         _append_to_file(f'{path}/chrome/userContent.css', '@import url("silkthemes-content.css");')
     else:
         with open(f'{path}/chrome/userContent.css', 'w+') as f:
