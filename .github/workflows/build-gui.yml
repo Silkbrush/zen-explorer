@@ -41,7 +41,7 @@ jobs:
         run: mv build/main_rewrite.app build/Zen\ Explorer.app
       - name: Rename (PowerShell)
         if: ${{ matrix.os == 'windows-latest' }}
-        run: Rename-Item -Path build/cli.exe -NewName zen-explorer.exe
+        run: Rename-Item -Path build/main_rewrite.exe -NewName zen-explorer-gui.exe
       - name: Compress to ZIP (macOS)
         if: ${{ matrix.os == 'macos-latest' }}
         run: cd build; zip -r ../zen-explorer-${{ matrix.os }}.zip ./Zen\ Explorer.app
@@ -62,4 +62,4 @@ jobs:
         if: ${{ matrix.os == 'windows-latest' }}
         with:
           name: zen-explorer-${{ matrix.os }}
-          path: build/zen-explorer.exe
+          path: build/zen-explorer-gui.exe
