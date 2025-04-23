@@ -44,6 +44,8 @@ jobs:
           macos-app-icon: assets/app-icons/silkbrush-mac.icns
           macos-target-arch: arm64
           windows-icon-from-ico: assets/app-icons/silkbrush-windows.ico
+          file-version: ${{ env.VERSION }}
+          macos-app-version: ${{ env.VERSION }}
       - name: Build (macOS x86_64)
         uses: Nuitka/Nuitka-Action@main
         with:
@@ -58,6 +60,7 @@ jobs:
           macos-target-arch: x86_64
           windows-icon-from-ico: assets/app-icons/silkbrush-windows.ico
           output-dir: build_intel
+          file-version: ${{ env.VERSION }}
           macos-app-version: ${{ env.VERSION }}
       - name: Rename (Linux)
         if: ${{ matrix.os == 'ubuntu-latest' }}
