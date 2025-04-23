@@ -39,6 +39,7 @@ jobs:
           enable-plugins: pyside6
           include-data-dir: explorer_ui/assets=explorer_ui/explorer_themes
           macos-app-icon: assets/app-icons/silkbrush-mac.icns
+          macos-target-arch: universal
           windows-icon-from-ico: assets/app-icons/silkbrush-windows.ico
       - name: Rename (Linux)
         if: ${{ matrix.os == 'ubuntu-latest' }}
