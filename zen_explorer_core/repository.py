@@ -31,6 +31,13 @@ class RepositoryData:
     def get_theme(self, zen_theme) -> Optional[theme.Theme]:
         return self._themes.get(zen_theme)
 
+    def get_theme_readme(self, zen_theme) -> Optional[str]:
+        if not zen_theme in self._themes:
+            return None
+        with open(f'{self._path}/themes/{zen_theme}/README.md') as f:
+            readme = f.read()
+        return readme
+
 def repository_path():
     if not os.path.isdir(f'{save_dir}/repository'):
         raise NotADirectoryError('repository not available, run update_repository')

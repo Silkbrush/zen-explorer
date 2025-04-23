@@ -27,14 +27,36 @@ def _build_css(data):
 
     return '\n'.join(chrome_lines), '\n'.join(content_lines)
 
+def _append_to_file(path, line):
+    with open(path, 'r') as f:
+        lines = f.readlines()
+
+    userchrome = [line[:-2] for line in lines if line.endswith('\n')]
+    if not line in userchrome:
+        lines.insert(0, f'{line}\n')
+        with open(path, 'w+') as f:
+            f.writelines(lines)
+
 def _apply_css(path, data):
     chrome, content = _build_css(data)
 
-    with open(f'{path}/chrome/userChrome.css', 'w+') as f:
+    with open(f'{path}/chrome/silkthemes-chrome.css', 'w+') as f:
         f.write(chrome)
 
-    with open(f'{path}/chrome/userContent.css', 'w+') as f:
+    with open(f'{path}/chrome/silkthemes-content.css', 'w+') as f:
         f.write(content)
+
+    if os.path.isfile(f'{path}/chrome/userChrome.css'):
+        _append_to_file(f'{path}/chrome/userChrome.css', '@import url("silkthemes-chrome.css");')
+    else:
+        with open(f'{path}/chrome/userChrome.css', 'w+') as f:
+            f.write('@import url("silkthemes-chrome.css");')
+
+    if os.path.isfile(f'{path}/chrome/userContent.css'):
+        _append_to_file(f'{path}/chrome/userContent.css', '@import url("silkthemes-content.css");')
+    else:
+        with open(f'{path}/chrome/userContent.css', 'w+') as f:
+            f.write('@import url("silkthemes-content.css");')
 
 def _profile_path(profile):
     return profiles.get_profile_path(profile)
@@ -56,6 +78,14 @@ def check_installed(profile):
     path = _profile_path(profile)
 
     return os.path.isdir(f'{path}/chrome') and os.path.isfile(f'{path}/chrome/zen-explorer.json')
+
+def is_installed(profile, theme_id):
+    if not check_installed(profile):
+        return False
+    else:
+        with open(f'{_profile_path(profile)}/chrome/zen-explorer.json', 'r') as f:
+            data = json.load(f)
+        return theme_id in data
 
 def install_theme(profile, theme_id, bypass_install=False, staging=False):
     print(f'trying to install theme: {theme_id}')
