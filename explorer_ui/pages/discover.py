@@ -54,12 +54,6 @@ class ThemeBrowseScreen(QWidget):
         if max_col == 0:
             return
 
-        while self.grid.count():
-            item = self.grid.takeAt(0)
-            widget = item.widget()
-            if widget:
-                widget.setParent(None)
-
         for col in range(self.previous_max_col):
             self.grid.setColumnMinimumWidth(col, 0)
 
