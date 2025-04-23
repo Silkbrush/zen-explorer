@@ -92,9 +92,6 @@ class ThemeBrowseScreen(QWidget):
 
         self.previous_row = row
 
-        if self.initial_row == -1:
-            self.initial_row = row
-
         self.setMinimumWidth(width - 20)
         self.setMaximumWidth(width - 20)
         self.setMinimumHeight(((row + 1) * 223) + (row * self.grid_min_gap))
