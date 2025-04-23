@@ -79,7 +79,7 @@ def get_profile_path(profile):
 def get_profiles():
     paths = _get_paths()
     profiles = []
-    profile_includes_dirs = ['storage', 'extensions']  # Example list of required directories
+    profile_includes_dirs = ['storage', 'settings']  # Example list of required directories
     for path in paths:
         possible_profiles = os.listdir(path)
 

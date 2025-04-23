@@ -1,0 +1,5 @@
+QWidget [type="navigation"]{
+    background-color: @primary-color;
+    border-radius: @border-radius;
+    border: @border-width @border-style @border-color;
+}
