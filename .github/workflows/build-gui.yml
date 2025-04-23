@@ -30,6 +30,8 @@ jobs:
           script-name: main_rewrite.py
           mode: app
           disable-cache: true
+          macos-app-name: Zen Explorer
+          enable-plugins: pyside6
       - name: Rename (Linux)
         if: ${{ matrix.os == 'ubuntu-latest' }}
         run: mv build/main_rewrite.bin build/zen-explorer-gui
@@ -41,7 +43,7 @@ jobs:
         run: Rename-Item -Path build/cli.exe -NewName zen-explorer.exe
       - name: Compress to ZIP (macOS)
         if: ${{ matrix.os == 'macos-latest' }}
-        run: zip -r zen-explorer-${{ matrix.os }}.zip build/Zen\ Explorer.app
+        run: cd build; zip -r ../zen-explorer-${{ matrix.os }}.zip ./Zen\ Explorer.app
       - name: Upload package (Linux)
         uses: actions/upload-artifact@v4
         if: ${{ matrix.os == 'ubuntu-latest' }}
