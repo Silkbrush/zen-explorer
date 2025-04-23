@@ -35,7 +35,7 @@ jobs:
           script-name: main_rewrite.py
           mode: app
           disable-cache: true
-          macos-app-name: Zen Explorer
+          macos-app-name: Silkthemes
           enable-plugins: pyside6
           include-data-dir: explorer_ui/assets=explorer_ui/explorer_themes
           macos-app-icon: assets/app-icons/silkbrush-mac.icns
@@ -48,7 +48,7 @@ jobs:
           script-name: main_rewrite.py
           mode: app
           disable-cache: true
-          macos-app-name: Zen Explorer
+          macos-app-name: Silkthemes
           enable-plugins: pyside6
           include-data-dir: explorer_ui/assets=explorer_ui/explorer_themes
           macos-app-icon: assets/app-icons/silkbrush-mac.icns
@@ -57,37 +57,37 @@ jobs:
           output-dir: build_intel
       - name: Rename (Linux)
         if: ${{ matrix.os == 'ubuntu-latest' }}
-        run: mv build/main_rewrite.bin build/zen-explorer-gui
+        run: mv build/main_rewrite.bin build/silkthemes-gui
       - name: Rename (macOS)
         if: ${{ matrix.os == 'macos-latest' }}
-        run: mv build/main_rewrite.app build/Zen\ Explorer.app; mv build_intel/main_rewrite.app build_intel/Zen\ Explorer.app
+        run: mv build/main_rewrite.app build/Silkthemes.app; mv build_intel/main_rewrite.app build_intel/Silkthemes.app
       - name: Rename (PowerShell)
         if: ${{ matrix.os == 'windows-latest' }}
-        run: Rename-Item -Path build/main_rewrite.exe -NewName zen-explorer-gui.exe
+        run: Rename-Item -Path build/main_rewrite.exe -NewName silkthemes-gui.exe
       - name: Compress to ZIP (macOS)
         if: ${{ matrix.os == 'macos-latest' }}
-        run: cd build; zip -r ../zen-explorer-gui-aarch64.zip ./Zen\ Explorer.app; cd ../build_intel; zip -r ../zen-explorer-gui-x86_64.zip ./Zen\ Explorer.app
+        run: cd build; zip -r ../silkthemes-gui-aarch64.zip ./Silkthemes.app; cd ../build_intel; zip -r ../silkthemes-gui-x86_64.zip ./Silkthemes.app
       - name: Upload package (Linux)
         uses: actions/upload-artifact@v4
         if: ${{ matrix.os == 'ubuntu-latest' }}
         with:
-          name: zen-explorer-gui-linux
-          path: build/zen-explorer-gui
+          name: silkthemes-gui-linux
+          path: build/silkthemes-gui
       - name: Upload package (macOS arm64)
         uses: actions/upload-artifact@v4
         if: ${{ matrix.os == 'macos-latest' }}
         with:
-          name: zen-explorer-gui-mac-aarch64
-          path: zen-explorer-gui-aarch64.zip
+          name: silkthemes-mac-aarch64
+          path: silkthemes-aarch64.zip
       - name: Upload package (macOS x86_64)
         uses: actions/upload-artifact@v4
         if: ${{ matrix.os == 'macos-latest' }}
         with:
-          name: zen-explorer-gui-mac-x86_64
-          path: zen-explorer-gui-x86_64.zip
+          name: silkthemes-mac-x86_64
+          path: silkthemes-x86_64.zip
       - name: Upload package (PowerShell)
         uses: actions/upload-artifact@v4
         if: ${{ matrix.os == 'windows-latest' }}
         with:
-          name: zen-explorer-gui-windows
-          path: build/zen-explorer-gui.exe
+          name: silkthemes-windows
+          path: build/silkthemes.exe
