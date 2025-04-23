@@ -31,8 +31,7 @@ jobs:
           mode: app
           disable-cache: true
           macos-app-name: Zen Explorer
-          enable-plugins:
-            - pyside6
+          enable-plugins: pyside6
       - name: Rename (Linux)
         if: ${{ matrix.os == 'ubuntu-latest' }}
         run: mv build/main_rewrite.bin build/zen-explorer-gui
