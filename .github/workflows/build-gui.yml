@@ -18,15 +18,21 @@ jobs:
           python-version: '3.12'
       - name: Install dependencies
         run: pip install -r requirements.txt
-      - name: Install Nuitka
-        run: pip install nuitka
       - name: Install zip
         if: ${{ matrix.os == 'ubuntu-latest' }}
         run: |
           sudo apt-get update
           sudo apt-get install -y zip
       - name: Build
-        run: python3 -m nuitka --mode=app --assume-yes-for-downloads --output-dir=build --script-name=main_rewrite.py --macos-app-name=Zen\ Explorer --enable-plugin=pyside6
+        uses: Nuitka/Nuitka-Action@main
+        with:
+          nuitka-version: main
+          script-name: main_rewrite.py
+          mode: app
+          disable-cache: true
+          macos-app-name: Zen Explorer
+          enable-plugins: pyside6
+          include-data-dir: explorer_ui/assets, explorer_ui/explorer_themes
       - name: Rename (Linux)
         if: ${{ matrix.os == 'ubuntu-latest' }}
         run: mv build/main_rewrite.bin build/zen-explorer-gui
@@ -38,7 +44,7 @@ jobs:
         run: Rename-Item -Path build/cli.exe -NewName zen-explorer.exe
       - name: Compress to ZIP (macOS)
         if: ${{ matrix.os == 'macos-latest' }}
-        run: zip -r zen-explorer-${{ matrix.os }}.zip build/Zen\ Explorer.app
+        run: cd build; zip -r ../zen-explorer-${{ matrix.os }}.zip ./Zen\ Explorer.app
       - name: Upload package (Linux)
         uses: actions/upload-artifact@v4
         if: ${{ matrix.os == 'ubuntu-latest' }}
