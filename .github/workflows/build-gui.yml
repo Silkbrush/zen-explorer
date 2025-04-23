@@ -16,6 +16,9 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: '3.12'
+      - name: Get version
+        run: python3 scripts/get_version.py
+      - run: echo ${{ env.VERSION }}
       - name: Download icons
         uses: actions/checkout@v4
         with:
@@ -55,6 +58,7 @@ jobs:
           macos-target-arch: x86_64
           windows-icon-from-ico: assets/app-icons/silkbrush-windows.ico
           output-dir: build_intel
+          macos-app-version: ${{ env.VERSION }}
       - name: Rename (Linux)
         if: ${{ matrix.os == 'ubuntu-latest' }}
         run: mv build/main_rewrite.bin build/silkthemes
