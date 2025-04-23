@@ -1,9 +1,11 @@
 from typing import Optional
 from PySide6.QtWidgets import QMainWindow, QVBoxLayout, QWidget
-from zen_explorer_core import repository, profiles
+from zen_explorer_core import repository, profiles, installer
+from zen_explorer_core.models import theme
 from explorer_ui.components import topbar, content
 from explorer_ui.models import pages, profiles as profile_models
-from explorer_ui.pages import discover
+from explorer_ui.pages import discover, overview
+
 
 class MainWindow(QMainWindow):
     def __init__(self, repo: repository.RepositoryData):
@@ -45,6 +47,7 @@ class MainWindow(QMainWindow):
         # Window variables
         self.page: pages.Pages = pages.Pages.discover
         self.profile: profile_models.Profile = self.profiles[0]
+        self.theme: Optional[theme.Theme] = None
 
         # Internal variables
         self.__ready = False
@@ -81,9 +84,30 @@ class MainWindow(QMainWindow):
         self.page = page
         self.topbar.handle_page_update()
 
+        if page == pages.Pages.discover:
+            self.content.set_content(discover.ThemeBrowseScreen(self))
+        elif page == pages.Pages.overview:
+            self.content.set_content(overview.ThemeScreen(self))
+
+        self.content.resize()
+
     def install(self):
-        # wip
-        pass
+        try:
+            print(f'Staging installing {self.theme.name} by {self.theme.author}...')
+            installer.install_theme(
+                f'{self.profile.id}.{self.profile.name}', self.theme.id, staging=True
+            )
+            print('Staging passed successfully')
+            print(f'Installing {self.theme.name} by {self.theme.author}...')
+            installer.install_theme(
+                f'{self.profile.id}.{self.profile.name}', self.theme.id
+            )
+            print('Installed successfully')
+        except Exception as e:
+            # TODO: add banners sometime later for this
+            print('Failed to install theme: ', e)
+        else:
+            pass
 
     def resizeEvent(self, event):
         self.content.resizeEvent(event)

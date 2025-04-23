@@ -35,7 +35,7 @@ class ThemeBrowseScreen(QWidget):
         print(f"{self.repo.themes}")
         for index, (theme_id, theme_data) in enumerate(self.repo.themes.items()):
             print(f"Loading theme {theme_id} with index {index}")
-            theme_box = theme_box_component.ThemeBox(self.repo.get_theme(theme_id), thumbnail)
+            theme_box = theme_box_component.ThemeBox(self._root, self.repo.get_theme(theme_id), thumbnail)
             theme_box.clicked.connect(lambda checked=False, theme=theme_data: self.load_theme(theme))
             self.grid.addWidget(theme_box, index // self.max_col, index % self.max_col)
             self.theme_boxes.append(theme_box)
@@ -75,15 +75,21 @@ class ThemeBrowseScreen(QWidget):
 
         row = 0
         col = 0
+        max_heights = []
 
         for index, theme_box in enumerate(self.theme_boxes):
             if col >= max_col:
                 col = 0
                 row += 1
             self.grid.addWidget(theme_box, row, col)
-            self.grid.setRowMinimumHeight(row, 223)
-            self.grid.setRowStretch(row, 0)
+            self.grid.setRowMinimumHeight(row, theme_box.height())
+            self.grid.setRowStretch(row, 1)
             col += 1
+
+            if len(max_heights) <= row:
+                max_heights.append(theme_box.height())
+            else:
+                max_heights[row] = max(max_heights[row], theme_box.height())
 
         self.grid.setVerticalSpacing(10)
 
@@ -91,8 +97,9 @@ class ThemeBrowseScreen(QWidget):
 
         self.setMinimumWidth(width)
         self.setMaximumWidth(width)
-        self.setMinimumHeight(((row + 1) * 223) + (row * self.grid_min_gap))
-        self.setMaximumHeight(((row + 1) * 223) + (row * self.grid_min_gap))
+        self.setMinimumHeight(sum(max_heights) + (row * self.grid_min_gap))
+        self.setMaximumHeight(sum(max_heights) + (row * self.grid_min_gap))
+        self.adjustSize()
         self.setSizePolicy(self.sizePolicy().Policy.Fixed, self.sizePolicy().Policy.Fixed)
 
     def resizeEvent(self, event):

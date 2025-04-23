@@ -16,6 +16,7 @@ class Content(QScrollArea):
         self.setStyleSheet('border: none;')
         self.setMinimumHeight(500)
         self.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
+        self.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
 
         # Internal variables
         self.__ready: bool = False
@@ -36,6 +37,13 @@ class Content(QScrollArea):
 
         # Set ready state
         self.__ready = True
+
+    # noinspection PyTypeChecker
+    def resize(self, width: Optional[int] = None):
+        if not width:
+            width = self.width()
+        if self.__widget:
+            self.__widget.resize(width)
 
     def resizeEvent(self, event):
         """Resize event for the widget."""

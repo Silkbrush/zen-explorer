@@ -3,6 +3,7 @@ from PySide6.QtCore import Qt
 from explorer_ui.models import pages
 from explorer_ui.models.widgets import QWidget
 from explorer_ui.utils import widgets
+from zen_explorer_core import installer
 from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
@@ -71,16 +72,17 @@ class TopBar(QWidget):
             button.setObjectName('button'+name)
             button.clicked.connect(behavior)
             button.setStyleSheet("""
-            QPushButton {
-                border: none;
-                padding: 5px;
-                margin-left: 10px;
-                border-radius: 4px;
-            }
-            
-            QPushButton[active] {
-                background-color: #3498db;
-            }
+                QPushButton {
+                    border: none;
+                    padding: 5px;
+                    margin-left: 10px;
+                    border-radius: 4px;
+                    color: white;
+                }
+                
+                QPushButton[active] {
+                    background-color: #3498db;
+                }
             """)
             self.__widgets.add_widget(button)
             self.navigation_area.addWidget(button)
@@ -89,8 +91,42 @@ class TopBar(QWidget):
         install_button = QPushButton('Install')
         install_button.setObjectName('buttonInstall')
         install_button.clicked.connect(self._install)
+        install_button.setStyleSheet("""
+            QPushButton {
+                border: none;
+                padding: 5px;
+                margin-left: 10px;
+                border-radius: 4px;
+                color: white;
+            }
+
+            QPushButton[active] {
+                background-color: #3498db;
+            }
+        """)
         self.profile_area.addWidget(install_button)
         self.__widgets.add_widget(install_button)
+
+        # Add uninstall button to profile area
+        uninstall_button = QPushButton('Uninstall')
+        uninstall_button.setObjectName('buttonUninstall')
+        uninstall_button.clicked.connect(self._uninstall)
+        uninstall_button.setStyleSheet("""
+            QPushButton {
+                border: none;
+                padding: 5px;
+                margin-left: 10px;
+                border-radius: 4px;
+                color: white;
+                background-color: #e74c3c;
+            }
+
+            QPushButton[active] {
+                background-color: #3498db;
+            }
+        """)
+        self.profile_area.addWidget(uninstall_button)
+        self.__widgets.add_widget(uninstall_button)
 
         # Add profile selector
         choices = [f'{profile.name} ({profile.id})' for profile in self._profiles]
@@ -99,6 +135,32 @@ class TopBar(QWidget):
         profile_selector.addItems(choices)
         profile_selector.setCurrentIndex(0)
         profile_selector.currentIndexChanged.connect(self._update_selected_profile)
+        profile_selector.setStyleSheet("""
+            QComboBox {
+                border: none;
+                padding: 5px;
+                margin-left: 10px;
+                border-radius: 4px;
+                color: white;
+            }
+            
+            QComboBox::drop-down {
+                subcontrol-origin: padding;
+                subcontrol-position: center right;
+                border-left: none; /* Remove the border between the field and drop-down */
+                background: transparent; /* Remove background of the drop-down */
+                image: url('explorer_ui/assets/icons/down-arrow-white.png');
+                width: 8px;
+                height: 8px;
+                margin-right: 5px;
+            }
+
+            QComboBox QAbstractItemView {
+                margin: 0;
+                padding: 0;
+                background-color: #222;
+            }
+        """)
         self.profile_area.addWidget(profile_selector)
         self._root.profile = self._profiles[0]
 
@@ -118,10 +180,23 @@ class TopBar(QWidget):
 
         # If not on overview page, hide install button
         install_button = self.__widgets.get_widget('buttonInstall')
+        uninstall_button = self.__widgets.get_widget('buttonUninstall')
         if self._root.page == pages.Pages.overview:
-            install_button.show()
+            # Check if theme is installed
+            theme = self._root.theme
+            installed = installer.is_installed(
+                f'{self._root.profile.id}.{self._root.profile.name}', theme.id
+            )
+
+            if installed:
+                uninstall_button.show()
+                install_button.hide()
+            else:
+                install_button.show()
+                uninstall_button.hide()
         else:
             install_button.hide()
+            uninstall_button.hide()
 
     # Prepare method
     def prepare(self):
@@ -145,10 +220,17 @@ class TopBar(QWidget):
         else:
             self._root.profile = self._profiles[index]
 
+        self._update_buttons()
+
         print(f'Selected profile: {self._root.profile.name} ({self._root.profile.id})')
 
     def _install(self):
         self._root.install()
+        self._update_buttons()
+
+    def _uninstall(self):
+        self._root.uninstall()
+        self._update_buttons()
 
     # Event methods (global)
     def handle_page_update(self):

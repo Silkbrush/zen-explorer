@@ -1,13 +1,11 @@
 import sys
 import os
-from enum import Enum
 from PySide6.QtWidgets import QApplication
 from zen_explorer_core import repository
 from explorer_ui.components import main as main_comp # , sidebar
 
 def main():
     app = QApplication(sys.argv)
-    print(app.styleHints().colorScheme())
     # app.setStyleSheet(load_css("ui/explorer_themes/default"))
     repository.update_repository()
     repo = repository.data
