@@ -1,11 +1,8 @@
-import time
 from PySide6.QtWidgets import (
     QApplication,
     QWidget,
     QGridLayout
 )
-from PySide6.QtCore import QEvent
-from PySide6.QtGui import Qt
 from explorer_ui.utils import images
 from explorer_ui.components import theme_box as theme_box_component
 from typing import TYPE_CHECKING, Any
