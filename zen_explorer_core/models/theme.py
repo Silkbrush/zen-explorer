@@ -53,7 +53,7 @@ class Theme:
 
     @property
     def thumbnail(self) -> str:
-        return self._raw_data.get('thumbnail')
+        return self._raw_data.get('image')
 
     @property
     def version(self) -> str:
