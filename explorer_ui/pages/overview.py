@@ -117,7 +117,10 @@ class ThemeScreen(QWidget):
         print('Theme installed.')
 
     def get_readme(self):
-        return self._root.repository.get_theme_readme(self.theme.id) or 'No README available'
+        try:
+            return self._root.repository.get_theme_readme(self.theme.id) or 'No README available'
+        except FileNotFoundError:
+            return 'No README available'
 
     def get_readme_item(self):
         # Get the markdown text
