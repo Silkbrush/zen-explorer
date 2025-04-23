@@ -17,8 +17,8 @@ class NavUI(QWidget):
         layout = QHBoxLayout()
 
         self.screens = QStackedWidget()
-        self.screens.addWidget(ThemeBrowseScreen(self, repo))
         self.screens.addWidget(ThemeScreen(self))
+        self.screens.addWidget(ThemeBrowseScreen(self, repo))
         layout.addWidget(self.screens)
 
         self.topbar = TopBar(self)
@@ -28,8 +28,7 @@ class NavUI(QWidget):
         main_layout = QVBoxLayout(self)
         main_layout.addLayout(top_bar_layout)
         main_layout.addLayout(layout)
-
-
+        self.switch_screen(1)
         self.setLayout(main_layout)
 
     def resizeEvent(self, event):
@@ -40,7 +39,7 @@ class NavUI(QWidget):
 
     def switch_screen(self, index):
         self.screens.setCurrentIndex(index)
-        if index == 1:
+        if index == 0:
             self.topbar.install_btn.show()
         else:
             self.topbar.install_btn.hide()

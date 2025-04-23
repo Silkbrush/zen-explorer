@@ -37,6 +37,8 @@ class TopBar(StyledWidget):
         self.profile_layout.addWidget(self.install_btn)
         self.install_btn.clicked.connect(lambda _: self.install(self.display_profile_to_profile[self.option_combo_box.currentText()]))
         self.install_btn.hide()
+        self.install_btn.setObjectName('InstallButton')
+        self.install_btn.setProperty('type', 'navbutton')
         self.profile_layout.addWidget(profile_switcher)
         
         
@@ -66,20 +68,8 @@ class TopBar(StyledWidget):
         for i, screen in enumerate(self.screens):
             button = QPushButton(screen.capitalize())
             button.setProperty('type', 'navbutton')
-            button.setStyleSheet("""
-                QPushButton {
-                    background-color: transparent;
-                    border: none;
-                }
-                QPushButton:hover {
-                    color: #555555;
-                }
-                QPushButton:pressed {
-                    color: #e58e27;
-                }
-            """)
             self.navigator_layout.addWidget(button)
-            button.clicked.connect(lambda _, i=i: self.show_screen(index=i))
+            button.clicked.connect(lambda _, i=i+1: self.show_screen(index=i))
 
     def create_profile_switcher(self):
         self.profiles_display = []

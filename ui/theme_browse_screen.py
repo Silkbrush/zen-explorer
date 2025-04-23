@@ -37,8 +37,8 @@ class ThemeBrowseScreen(QWidget):
 
     def load_theme(self, theme):
         # Get the widget at index 1 which is the ThemeScreen instance
-        self.navui.switch_screen(1)
-        theme_screen = self.navui.screens.widget(1)
+        self.navui.switch_screen(0)
+        theme_screen = self.navui.screens.widget(0)
         theme_screen.load_theme(theme)
         print(theme_screen)
 
@@ -64,4 +64,4 @@ class ThemeBrowseScreen(QWidget):
         if time.time() > self.resize_allowed_time:
             print("Resizing themes")
             self.resize_themes()
-            self.resize_allowed_time = time.time() + 0.4
+            self.resize_allowed_time = time.time() + 0.1

@@ -2,8 +2,19 @@ QMainWindow {
     background-color: @window-background;
 }
 
+
+#ThemeScrollArea {
+    background-color: @container-color;
+    border-radius: 10px;
+}
+
+#ThemeScrollContainer {
+    background-color: transparent;
+    border-radius: 10px;
+}
+
 #TopBar {
-    background-color: @transparent-glass-color;
+    background-color: @container-color;
     border-radius: 10px;
 }
 
@@ -19,12 +30,39 @@ QPushButton[type="navbutton"]:pressed {
 }
 
 #ProfileSelector {
-    background-color: transparent;
-    border: none;
+    background-color: @primary-color;
+    border-radius: 10px;
+    padding: 5px;
+    border: 1px solid @primary-color;
 }
+
+#InstallButton {
+    background-color: @primary-color;
+    border-radius: 10px;
+    padding: 5px;
+    border: 1px solid @primary-color;
+}
+
+#ProfileSelector::drop-down {
+    subcontrol-origin: padding;
+    subcontrol-position: top right;
+    width: 20px;
+    border-left: none; /* Remove the border between the field and drop-down */
+    background: transparent; /* Remove background of the drop-down */
+}
+
+#ProfileSelector::down-arrow {
+    image: url('ui/assets/icons/down-arrow-white.png');
+    width: 14px;
+    height: 14px;
+    margin-top: 2px;
+    margin-right: 5px;
+}
+
 #ProfileSelector:hover {
     color: @navbutton-hover-color;
 }
+
 #ProfileSelector:pressed {
-    color: @transparent-glass-color;
+    color: @primary-color;
 }

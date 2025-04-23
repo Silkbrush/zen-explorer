@@ -8,6 +8,7 @@ from PySide6.QtWidgets import (
 from zen_explorer_core import installer
 from zen_explorer_core.models.theme import Theme
 from PySide6.QtGui import Qt
+from PySide6.QtCore import Qt as QtCore
 from zen_explorer_core import repository
 from github import Github
 import re
@@ -31,8 +32,6 @@ class ThemeScreen(QWidget):
         print(f'Theme loaded: {self.name}')
         
     def install_theme(self, profile_id):
-
-    
         if not repository.data or not repository.data.themes:
             print('No themes available.')
             return
@@ -49,14 +48,20 @@ class ThemeScreen(QWidget):
         self.main_box = QVBoxLayout()
 
         self.scrollable_area = QScrollArea()
+        
         self.scrollable_area.setWidgetResizable(True)
 
         # Create a container widget to hold the layout
         scroll_content = QWidget()
         scroll_content.setLayout(self.main_box)
+        scroll_content.setObjectName('ThemeScrollArea')
 
+        
         # Set the widget for the scroll area
         self.scrollable_area.setWidget(scroll_content)
+        self.scrollable_area.setVerticalScrollBarPolicy(QtCore.ScrollBarPolicy.ScrollBarAlwaysOff)
+        self.scrollable_area.setHorizontalScrollBarPolicy(QtCore.ScrollBarPolicy.ScrollBarAlwaysOff)
+        self.scrollable_area.setObjectName('ThemeScrollContainer')
 
         # Create a layout for this widget and add the scroll area to it
         layout = QVBoxLayout()
@@ -96,12 +101,7 @@ class ThemeScreen(QWidget):
         separator = QWidget()
         separator.setFixedHeight(1)
         self.main_box.addWidget(separator)
-
-        # Add the README content display
-        readme_heading = QLabel("README")
-        readme_heading.setStyleSheet("font-size: 14pt; font-weight: bold; margin-top: 20px;")
-        self.main_box.addWidget(readme_heading)
-
+        
         self.main_box.addWidget(self.get_readme_item())
 
         # Add stretch to push everything to the top
