@@ -95,17 +95,34 @@ class MainWindow(QMainWindow):
         try:
             print(f'Staging installing {self.theme.name} by {self.theme.author}...')
             installer.install_theme(
-                f'{self.profile.id}.{self.profile.name}', self.theme.id, staging=True
+                f'{self.profile.id}.{self.profile.name}', self.theme.id, staging=True, bypass_install=True
             )
             print('Staging passed successfully')
             print(f'Installing {self.theme.name} by {self.theme.author}...')
             installer.install_theme(
-                f'{self.profile.id}.{self.profile.name}', self.theme.id
+                f'{self.profile.id}.{self.profile.name}', self.theme.id, bypass_install=True
             )
             print('Installed successfully')
         except Exception as e:
             # TODO: add banners sometime later for this
             print('Failed to install theme: ', e)
+        else:
+            pass
+
+    def uninstall(self):
+        try:
+            print(f'Staging uninstalling {self.theme.name} by {self.theme.author}...')
+            installer.uninstall_theme(
+                f'{self.profile.id}.{self.profile.name}', self.theme.id, staging=True
+            )
+            print('Staging passed successfully')
+            print(f'Uninstalling {self.theme.name} by {self.theme.author}...')
+            installer.uninstall_theme(
+                f'{self.profile.id}.{self.profile.name}', self.theme.id
+            )
+            print('Uninstalled successfully')
+        except Exception as e:
+            print('Failed to uninstall theme: ', e)
         else:
             pass
 

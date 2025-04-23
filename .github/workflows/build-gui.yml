@@ -1,0 +1,62 @@
+name: Build (GUI)
+on: workflow_dispatch
+
+jobs:
+  build-linux:
+    name: Build
+    strategy:
+      matrix:
+        os: [ macos-latest, ubuntu-latest, windows-latest ]
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+      - name: Install zip
+        if: ${{ matrix.os == 'ubuntu-latest' }}
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y zip
+      - name: Build
+        uses: Nuitka/Nuitka-Action@main
+        with:
+          nuitka-version: main
+          script-name: cli.py
+          mode: app
+          disable-cache: true
+      - name: Rename (Linux)
+        if: ${{ matrix.os == 'ubuntu-latest' }}
+        run: mv build/main_rewrite.bin build/zen-explorer-gui
+      - name: Rename (macOS)
+        if: ${{ matrix.os == 'macos-latest' }}
+        run: mv build/main_rewrite.app build/Zen\ Explorer.app
+      - name: Rename (PowerShell)
+        if: ${{ matrix.os == 'windows-latest' }}
+        run: Rename-Item -Path build/cli.exe -NewName zen-explorer.exe
+      - name: Compress to ZIP (macOS)
+        if: ${{ matrix.os == 'macos-latest' }}
+        run: zip -r zen-explorer-${{ matrix.os }}.zip build/Zen\ Explorer.app
+      - name: Upload package (Linux)
+        uses: actions/upload-artifact@v4
+        if: ${{ matrix.os == 'ubuntu-latest' }}
+        with:
+          name: zen-explorer-${{ matrix.os }}
+          path: build/zen-explorer-${{ matrix.os }}
+      - name: Upload package (macOS)
+        uses: actions/upload-artifact@v4
+        if: ${{ matrix.os == 'macos-latest' }}
+        with:
+          name: zen-explorer-${{ matrix.os }}
+          path: zen-explorer-${{ matrix.os }}.zip
+      - name: Upload package (PowerShell)
+        uses: actions/upload-artifact@v4
+        if: ${{ matrix.os == 'windows-latest' }}
+        with:
+          name: zen-explorer-${{ matrix.os }}
+          path: build/zen-explorer.exe
