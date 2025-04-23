@@ -105,27 +105,6 @@ def install_theme(profile, theme_id, bypass_install=False, staging=False):
         with open(f'{_profile_path(profile)}/chrome/zen-explorer.json', 'r') as f:
             new_data = json.load(f)
 
-    new_data[theme_id] = {
-        'version': zen_theme.version,
-        'updatedAt': zen_theme.updated_at.timestamp(),
-        'uclChromeTarget': zen_theme.chrome_targets,
-        'uclContentTarget': zen_theme.content_targets
-    }
-
-    if not staging:
-        if not os.path.isdir(f'{_profile_path(profile)}/chrome'):
-            os.makedirs(f'{_profile_path(profile)}/chrome')
-        if not os.path.isdir(f'{_profile_path(profile)}/chrome/zen-explorer-themes'):
-            os.makedirs(f'{_profile_path(profile)}/chrome/zen-explorer-themes')
-
-    if staging:
-        print('Simulated data update')
-        print(new_data)
-    else:
-        with open(f'{_profile_path(profile)}/chrome/zen-explorer.json', 'w+') as f:
-            # noinspection PyTypeChecker
-            json.dump(new_data, f, indent=4)
-
     theme_path = f'{repository.repository_path()}/themes/{theme_id}'
     profile_path = _profile_path(profile)
 
@@ -156,6 +135,27 @@ def install_theme(profile, theme_id, bypass_install=False, staging=False):
         print(content)
     else:
         _apply_css(profile_path, new_data)
+
+    new_data[theme_id] = {
+        'version': zen_theme.version,
+        'updatedAt': zen_theme.updated_at.timestamp(),
+        'uclChromeTarget': zen_theme.chrome_targets,
+        'uclContentTarget': zen_theme.content_targets
+    }
+
+    if not staging:
+        if not os.path.isdir(f'{_profile_path(profile)}/chrome'):
+            os.makedirs(f'{_profile_path(profile)}/chrome')
+        if not os.path.isdir(f'{_profile_path(profile)}/chrome/zen-explorer-themes'):
+            os.makedirs(f'{_profile_path(profile)}/chrome/zen-explorer-themes')
+
+    if staging:
+        print('Simulated data update')
+        print(new_data)
+    else:
+        with open(f'{_profile_path(profile)}/chrome/zen-explorer.json', 'w+') as f:
+            # noinspection PyTypeChecker
+            json.dump(new_data, f, indent=4)
 
 def uninstall_theme(profile, theme_id, staging=False):
     profile = _profile_exists(profile)
