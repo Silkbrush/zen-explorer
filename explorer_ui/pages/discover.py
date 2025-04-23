@@ -99,4 +99,4 @@ class ThemeBrowseScreen(QWidget):
         self.setSizePolicy(self.sizePolicy().Policy.Fixed, self.sizePolicy().Policy.Fixed)
 
     def resizeEvent(self, event):
-        self.resize(self._root.width())
+        self.resize(self.parentWidget().width())

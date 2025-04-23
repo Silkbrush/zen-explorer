@@ -42,4 +42,3 @@ class Content(QScrollArea):
         super().resizeEvent(event)
         if self.__widget:
             self.__widget.resizeEvent(event)
-
