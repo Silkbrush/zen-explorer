@@ -58,27 +58,33 @@ jobs:
       - name: Rename (Linux)
         if: ${{ matrix.os == 'ubuntu-latest' }}
         run: mv build/main_rewrite.bin build/zen-explorer-gui
-      - name: Fuse to Universal (macOS)
+      - name: Rename (macOS)
         if: ${{ matrix.os == 'macos-latest' }}
-        run: mv build/main_rewrite.app arm64.app; mv build_intel/main_rewrite.app intel.app; lipo -create -output Zen\ Explorer.app intel.app arm64.app
+        run: mv build/main_rewrite.app build/Zen\ Explorer.app; mv build_intel/main_rewrite.app build_intel/Zen\ Explorer.app
       - name: Rename (PowerShell)
         if: ${{ matrix.os == 'windows-latest' }}
         run: Rename-Item -Path build/main_rewrite.exe -NewName zen-explorer-gui.exe
       - name: Compress to ZIP (macOS)
         if: ${{ matrix.os == 'macos-latest' }}
-        run: zip -r ./zen-explorer-gui.zip ./Zen\ Explorer.app
+        run: cd build; zip -r ../zen-explorer-gui-aarch64.zip ./Zen\ Explorer.app; cd ../build_intel; zip -r ../zen-explorer-gui-x86_64.zip ./Zen\ Explorer.app
       - name: Upload package (Linux)
         uses: actions/upload-artifact@v4
         if: ${{ matrix.os == 'ubuntu-latest' }}
         with:
           name: zen-explorer-gui-linux
           path: build/zen-explorer-gui
-      - name: Upload package (macOS)
+      - name: Upload package (macOS arm64)
         uses: actions/upload-artifact@v4
         if: ${{ matrix.os == 'macos-latest' }}
         with:
-          name: zen-explorer-gui-mac
-          path: zen-explorer-gui.zip
+          name: zen-explorer-gui-mac-aarch64
+          path: zen-explorer-gui-aarch64.zip
+      - name: Upload package (macOS x86_64)
+        uses: actions/upload-artifact@v4
+        if: ${{ matrix.os == 'macos-latest' }}
+        with:
+          name: zen-explorer-gui-mac-x86_64
+          path: zen-explorer-gui-x86_64.zip
       - name: Upload package (PowerShell)
         uses: actions/upload-artifact@v4
         if: ${{ matrix.os == 'windows-latest' }}
