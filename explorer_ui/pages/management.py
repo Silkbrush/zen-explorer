@@ -54,7 +54,7 @@ class ThemeManagementScreen(QWidget):
             
             if installer.is_installed(profile, theme):
                 button = QPushButton('uninstall')
-                button.clicked.connect(lambda theme=theme, profile=profile: self._uninstall(theme, profile))
+                button.clicked.connect(lambda _, theme=theme, profile=profile: self._uninstall(theme, profile))
                 action_button_layout.addWidget(button)
                 button.setStyleSheet("""
                     QPushButton {
