@@ -4,7 +4,7 @@ from zen_explorer_core import repository, profiles, installer
 from zen_explorer_core.models import theme
 from explorer_ui.components import topbar, content
 from explorer_ui.models import pages, profiles as profile_models
-from explorer_ui.pages import discover, overview
+from explorer_ui.pages import discover, overview, management
 from explorer_ui.utils import images
 
 
@@ -93,6 +93,9 @@ class MainWindow(QMainWindow):
             self.content.set_content(discover.ThemeBrowseScreen(self))
         elif page == pages.Pages.overview:
             self.content.set_content(overview.ThemeScreen(self))
+        elif page == pages.Pages.manage:
+            screen = management.ThemeManagementScreen(self)
+            self.content.set_content(screen)
 
         self.content.resize()
 
