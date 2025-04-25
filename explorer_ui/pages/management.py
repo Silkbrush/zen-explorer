@@ -1,3 +1,4 @@
+import time
 from PySide6.QtWidgets import (
     QCheckBox,
     QHBoxLayout,
@@ -5,10 +6,13 @@ from PySide6.QtWidgets import (
     QVBoxLayout,
     QWidget
 )
-from ui.components import theme_box
-from ui.main_window import MainWindow
 from zen_explorer_core import installer, profiles, repository
-import time
+from typing import TYPE_CHECKING, Any
+
+if TYPE_CHECKING:
+    from explorer_ui.components.main import MainWindow
+else:
+    MainWindow = Any
 
 class ThemeManagementScreen(QWidget):
     def __init__(self, root: MainWindow):
@@ -54,7 +58,7 @@ class ThemeManagementScreen(QWidget):
             
             if installer.is_installed(profile, theme):
                 button = QPushButton('uninstall')
-                button.clicked.connect(lambda _, theme=theme, profile=profile: self._uninstall(theme, profile))
+                button.clicked.connect(lambda: self._uninstall(theme, profile))
                 action_button_layout.addWidget(button)
                 button.setStyleSheet("""
                     QPushButton {
@@ -75,6 +79,7 @@ class ThemeManagementScreen(QWidget):
                     padding: 8px;
                 }
             """)
+
     def resize(self, width):
         self.setMinimumWidth(width)
         
@@ -84,8 +89,7 @@ class ThemeManagementScreen(QWidget):
             self.update_themes()
             self.allowresizeon = time.time() + 0.3
         super().resizeEvent(event)
-        
-        
+
     def _uninstall(self, theme, profile):
         try:
             print(f"Uninstalling theme {theme} in {profile}...")
@@ -96,4 +100,3 @@ class ThemeManagementScreen(QWidget):
         except Exception as e:
             print(f"Error uninstalling theme {theme}: {e}")
         self.update_themes()
-
