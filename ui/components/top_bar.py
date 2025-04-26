@@ -13,7 +13,7 @@ class TopBar(StyledWidget):
         self.setProperty("type", "navigation")
         self.main_layout = QHBoxLayout(self)
         self.main_layout.setContentsMargins(10, 10, 10, 10)  # Zero horizontal margins
-        self.main_layout.setSpacing(10) 
+        self.main_layout.setSpacing(10)
         self.setLayout(self.main_layout)
         self.navui = navui
 
@@ -40,8 +40,8 @@ class TopBar(StyledWidget):
         self.install_btn.setObjectName('InstallButton')
         self.install_btn.setProperty('type', 'navbutton')
         self.profile_layout.addWidget(profile_switcher)
-        
-        
+
+    
     def install(self, profile_id):
         print('Installing...')
         try:

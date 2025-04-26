@@ -1,4 +1,5 @@
 import time
+from PySide6.QtGui import QResizeEvent
 from PySide6.QtWidgets import (
     QCheckBox,
     QHBoxLayout,
@@ -46,10 +47,13 @@ class ThemeManagementScreen(QWidget):
             buttonwidget = QWidget()
             main_button_layout = QHBoxLayout(buttonwidget)
             main_button_layout.setContentsMargins(10, 10, 10, 10)
+
             theme_data = repository.data.get_theme(theme)
-            theme_button = QCheckBox(theme_data.name)
-            theme_button.setCheckable(True)
-            # theme_button.setStyleSheet('background-color: #222; border-radius: 10px; padding: 8px;')
+            # theme_button = QCheckBox(theme_data.name)
+            # theme_button.toggled.connect(lambda: self._button_toggle())
+            # theme_button.setCheckable(True)
+            theme_button = QPushButton(theme_data.name)
+
             buttonwidget.setLayout(main_button_layout)
             main_button_layout.addWidget(theme_button)
             main_button_layout.addStretch()
@@ -57,10 +61,13 @@ class ThemeManagementScreen(QWidget):
 
             action_button_layout = QHBoxLayout()
             main_button_layout.addLayout(action_button_layout)
-            button = QPushButton('uninstall')
-            button.clicked.connect(lambda _, theme=theme, profile=profile: self._uninstall(theme, profile))
-            action_button_layout.addWidget(button)
-            button.setStyleSheet("""
+
+            # Uninstall Button
+            uninstall_button = QPushButton('Uninstall')
+            uninstall_button.clicked.connect(
+                lambda _, theme=theme, profile=profile: self._uninstall(theme, profile)
+            )
+            uninstall_button.setStyleSheet("""
                 QPushButton {
                     border: none;
                     padding: 5px;
@@ -72,6 +79,7 @@ class ThemeManagementScreen(QWidget):
                     color: #333;
                 }
             """)
+
             buttonwidget.setStyleSheet("""
                 QWidget {
                     background-color: #222;
@@ -80,14 +88,41 @@ class ThemeManagementScreen(QWidget):
                 }
             """)
 
+            # Disable/Enable Button
+            is_enabled = installer.is_enabled(profile, theme)
+            button_data = {
+                'text': 'Disable' if is_enabled else 'Enable',
+                'action': (lambda _=None, theme=theme, profile=profile, is_enabled=is_enabled:
+                           (self._disable(theme, profile) if is_enabled else self._enable(theme, profile))),
+                'color': 'blue' if is_enabled else 'green',
+                'objectName': 'disableButton' if is_enabled else 'enableButton',
+            }
+            toggle_enable_button = QPushButton(button_data['text'], buttonwidget)
+            toggle_enable_button.clicked.connect(lambda _, data=button_data: data['action']())
+            toggle_enable_button.setStyleSheet(f"""
+                QPushButton {{
+                    border: none;
+                    padding: 5px;
+                    margin-left: 10px;
+                    border-radius: 4px;
+                    color: {button_data['color']};
+                }}
+                QPushButton:hover {{
+                    color: #333;
+                }}
+            """)
+
+            action_button_layout.addWidget(toggle_enable_button)
+            action_button_layout.addWidget(uninstall_button)
+
+    # def _button_toggle(self):
+    #     pass
+
     def resize(self, width):
-        self.setMinimumWidth(width)
+        self.setFixedWidth(width)
         
-    def resizeEvent(self, event):
-        if time.time() > self.allowresizeon:
-            print("Resizing...")
-            self.update_themes()
-            self.allowresizeon = time.time() + 0.3
+    def resizeEvent(self, event: QResizeEvent):
+        self.resize(event.size().width())
         super().resizeEvent(event)
 
     def _uninstall(self, theme, profile):
@@ -99,4 +134,20 @@ class ThemeManagementScreen(QWidget):
             print('uninstall completed')
         except Exception as e:
             print(f"Error uninstalling theme {theme}: {e}")
+        self.update_themes()
+
+    def _enable(self, theme, profile):
+        try:
+            installer.enable_theme(profile, theme)
+            print(f"Theme {theme} enabled in {profile}")
+        except Exception as e:
+            print(f"Error enabling theme {theme}: {e}")
+        self.update_themes()
+        
+    def _disable(self, theme, profile):
+        try:
+            installer.disable_theme(profile, theme)
+            print(f"Theme {theme} disabled in {profile}")
+        except Exception as e:
+            print(f"Error disabling theme {theme}: {e}")
         self.update_themes()
