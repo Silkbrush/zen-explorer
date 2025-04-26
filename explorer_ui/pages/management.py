@@ -23,7 +23,8 @@ class ThemeManagementScreen(QWidget):
         self.update_themes()
         self.setLayout(self._layout)
         self.allowresizeon = time.time()
-        
+
+    # noinspection PyUnresolvedReferences,PyUnboundLocalVariable
     def update_themes(self):
         profile = f'{self._root.profile.id}.{self._root.profile.name}'
         while self._layout.count() > 0:
@@ -39,6 +40,7 @@ class ThemeManagementScreen(QWidget):
                         child_widget = child_item.widget()
                         if child_widget is not None:
                             child_widget.deleteLater()
+
         for theme in profiles.get_installed(profile):
             print(theme)
             buttonwidget = QWidget()
