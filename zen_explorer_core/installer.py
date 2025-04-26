@@ -1,4 +1,4 @@
-
+import re
 import os
 import json
 import shutil
@@ -7,6 +7,45 @@ from zen_explorer_core import profiles, repository
 from zen_explorer_core.models import theme
 
 zen_profiles = profiles.get_profiles()
+
+
+def _extract_ids_from_css(file_path):
+    """
+    Parses a CSS file to extract specific IDs from @import rules.
+
+    Args:
+        file_path (str): The path to the CSS file.
+
+    Returns:
+        list: A list of tuples, where each tuple contains the 
+              line number (0-based) and the extracted ID.
+              Returns an empty list if the file doesn't exist or 
+              no matching lines are found.
+        str: An error message if the file cannot be read.
+    """
+    results = []
+    # Regex to match @import url("zen-explorer-themes/some-id...") and capture the ID
+    pattern = re.compile(r'^@import\s+url\("zen-explorer-themes/([^/]+).*\);$')
+
+    if not os.path.exists(file_path):
+        return f"Error: File not found at '{file_path}'"
+    if not os.path.isfile(file_path):
+         return f"Error: Path '{file_path}' is not a file."
+
+    try:
+        with open(file_path, 'r', encoding='utf-8') as f:
+            for line_num, line in enumerate(f): # Start count from 0
+                stripped_line = line.strip()
+                match = pattern.match(stripped_line)
+                if match:
+                    extracted_id = match.group(1)
+                    results.append((extracted_id, line_num))
+    except Exception as e:
+        return f"Error reading file '{file_path}': {e}"
+    return results
+
+def _profile_path(profile):
+    return profiles.get_profile_path(profile)
 
 def _profile_exists(profile):
     if not profile in zen_profiles:
@@ -17,14 +56,117 @@ def _profile_exists(profile):
     else:
         return profile
 
+def check_userchrome(profile):
+    profile = _profile_exists(profile)
+    path = _profile_path(profile)
+
+    return os.path.isdir(f'{path}/chrome') and os.path.isfile(f'{path}/chrome/userChrome.css')
+
+def check_usercontent(profile):
+    profile = _profile_exists(profile)
+    path = _profile_path(profile)
+
+    return os.path.isdir(f'{path}/chrome') and os.path.isfile(f'{path}/chrome/userContent.css')
+
+def check_installed(profile):
+    profile = _profile_exists(profile)
+    path = _profile_path(profile)
+
+    return os.path.isdir(f'{path}/chrome') and os.path.isfile(f'{path}/chrome/zen-explorer.json')
+
+def get_enabled_themes(profile) -> list[str]:
+    """
+    Retrieves a list of current theme IDs applied to the given user profile.
+
+    Args:
+        profile (str): The profile identifier to check for currently
+        installed themes. (Format: <id>.<name>)
+
+    Returns:
+        list[str]: A list of theme IDs currently applied. If the profile is not installed,
+        raises a RuntimeError.
+
+    Raises:
+        RuntimeError: If the profile is not installed or applicable chrome
+        and content files don't exist.
+    """
+    profile = _profile_exists(profile)
+    if not check_installed(profile):
+        raise RuntimeError('not installed')
+        
+    profile_path = _profile_path(profile)
+    css_path = f'{profile_path}/chrome/silkthemes-chrome.css'
+    ids = [id_tuple[0] for id_tuple in _extract_ids_from_css(css_path)]
+    return ids
+
+def is_enabled(profile, theme_id):
+    profile = _profile_exists(profile)
+    if not check_installed(profile):
+        raise RuntimeError('zen-explorer not installed')
+
+    profile_path = _profile_path(profile)
+    
+    if not check_installed(profile):
+        print('theme not installed')
+        return False
+        
+    with open(f'{profile_path}/chrome/zen-explorer.json', 'r') as f:
+        data = json.load(f)
+        try:
+            return data[theme_id]['enabled']
+        except KeyError:
+            pass
+    if theme_id in get_enabled_themes(profile):
+        return True
+
+    return False
+
+def migrate_explorer_json(profile):
+    profile = _profile_exists(profile)
+    if not check_installed(profile):
+        pass
+
+    profile_path = _profile_path(profile)
+    
+    if not os.path.isfile(f'{profile_path}/chrome/zen-explorer.json'):
+        return
+        
+    with open(f'{profile_path}/chrome/zen-explorer.json', 'r') as f:
+        data = json.load(f)
+    
+    for zen_theme in data:
+        data[zen_theme]['enabled'] = is_enabled(profile, zen_theme)
+    
+    with open(f'{profile_path}/chrome/zen-explorer.json', 'w+') as f:
+        # noinspection PyTypeChecker
+        json.dump(data, f, indent=4)
+        
+for profile in zen_profiles:
+    print(f'Updating profile: {profile}')
+    migrate_explorer_json(profile)
+
 def _build_css(data):
     chrome_lines = []
     content_lines = []
     for zen_theme in data:
+        try:
+            if not data[zen_theme]['enabled']:
+                enabled = False
+            else:
+                enabled = True
+        except Exception:
+            enabled = True
         for target in data[zen_theme]['uclChromeTarget']:
-            chrome_lines.append(f'@import url("zen-explorer-themes/{zen_theme}/{target}");')
+            if enabled:
+                chrome_lines.append(f'@import url("zen-explorer-themes/{zen_theme}/{target}");')
         for target in data[zen_theme]['uclContentTarget']:
-            content_lines.append(f'@import url("zen-explorer-themes/{zen_theme}/{target}");')
+            try:
+                if not data[zen_theme]['enabled']:
+                    continue
+            except KeyError:
+                pass
+            if enabled:
+                content_lines.append(f'@import url("zen-explorer-themes/{zen_theme}/{target}");')
 
     return '\n'.join(chrome_lines), '\n'.join(content_lines)
 
@@ -61,27 +203,6 @@ def _apply_css(path, data):
     else:
         with open(f'{path}/chrome/userContent.css', 'w+') as f:
             f.write('@import url("silkthemes-content.css");')
-
-def _profile_path(profile):
-    return profiles.get_profile_path(profile)
-
-def check_userchrome(profile):
-    profile = _profile_exists(profile)
-    path = _profile_path(profile)
-
-    return os.path.isdir(f'{path}/chrome') and os.path.isfile(f'{path}/chrome/userChrome.css')
-
-def check_usercontent(profile):
-    profile = _profile_exists(profile)
-    path = _profile_path(profile)
-
-    return os.path.isdir(f'{path}/chrome') and os.path.isfile(f'{path}/chrome/userContent.css')
-
-def check_installed(profile):
-    profile = _profile_exists(profile)
-    path = _profile_path(profile)
-
-    return os.path.isdir(f'{path}/chrome') and os.path.isfile(f'{path}/chrome/zen-explorer.json')
 
 def is_installed(profile, theme_id):
     if not check_installed(profile):
@@ -219,3 +340,78 @@ def get_updates(profile) -> dict:
             updates[theme_id] = zen_theme
 
     return updates
+
+def disable_theme(profile, theme_id, staging=False):
+    profile = _profile_exists(profile)
+    if not check_installed(profile):
+        raise RuntimeError('not installed')
+
+    profile_path = _profile_path(profile)
+
+    with open(f'{profile_path}/chrome/zen-explorer.json', 'r') as f:
+        data = json.load(f)
+    print(data)
+    print(theme_id)
+    print(theme_id in data)
+    if not is_installed(profile, theme_id):
+        raise FileNotFoundError('theme not installed')
+    
+    if not is_enabled(profile, theme_id):
+        print(f'Theme {theme_id} is already disabled')
+        return
+
+    
+    if staging:
+        print('Simulated data update')
+    else:
+        with open(f'{profile_path}/chrome/zen-explorer.json', 'w+') as f:
+            # noinspection PyTypeChecker
+            data[theme_id]['enabled'] = False
+            json.dump(data, f, indent=4)
+
+    # We can overwrite userChrome and userContent here
+    if staging:
+        chrome, content = _build_css(data)
+        print('Simulated chrome write')
+        print(chrome)
+        print('\nSimulated content write')
+        print(content)
+    else:
+        _apply_css(profile_path, data)
+        
+def enable_theme(profile, theme_id, staging=False):
+    profile = _profile_exists(profile)
+    if not check_installed(profile):
+        raise RuntimeError('not installed')
+
+    profile_path = _profile_path(profile)
+    
+    if not check_installed(profile):
+        raise RuntimeError('theme not installed')
+    
+    with open(f'{profile_path}/chrome/zen-explorer.json', 'r') as f:
+        data = json.load(f)
+    
+    if not theme_id in data:
+        raise FileNotFoundError('theme not installed')
+
+    data[theme_id]['enabled'] = True
+
+    if staging:
+        print('Simulated data update')
+    else:
+        with open(f'{profile_path}/chrome/zen-explorer.json', 'w+') as f:
+            # noinspection PyTypeChecker
+            data[theme_id]['enabled'] = True
+            json.dump(data, f, indent=4)
+
+    # We can overwrite userChrome and userContent here
+    if staging:
+        chrome, content = _build_css(data)
+        print('Simulated chrome write')
+        print(chrome)
+        print('\nSimulated content write')
+        print(content)
+    else:
+        _apply_css(profile_path, data)
+        

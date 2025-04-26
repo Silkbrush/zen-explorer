@@ -55,23 +55,21 @@ class ThemeManagementScreen(QWidget):
 
             action_button_layout = QHBoxLayout()
             main_button_layout.addLayout(action_button_layout)
-            
-            if installer.is_installed(profile, theme):
-                button = QPushButton('uninstall')
-                button.clicked.connect(lambda: self._uninstall(theme, profile))
-                action_button_layout.addWidget(button)
-                button.setStyleSheet("""
-                    QPushButton {
-                        border: none;
-                        padding: 5px;
-                        margin-left: 10px;
-                        border-radius: 4px;
-                        color: red;
-                    }
-                    QPushButton:hover {
-                        color: #333;
-                    }
-                """)
+            button = QPushButton('uninstall')
+            button.clicked.connect(lambda _, theme=theme, profile=profile: self._uninstall(theme, profile))
+            action_button_layout.addWidget(button)
+            button.setStyleSheet("""
+                QPushButton {
+                    border: none;
+                    padding: 5px;
+                    margin-left: 10px;
+                    border-radius: 4px;
+                    color: red;
+                }
+                QPushButton:hover {
+                    color: #333;
+                }
+            """)
             buttonwidget.setStyleSheet("""
                 QWidget {
                     background-color: #222;
