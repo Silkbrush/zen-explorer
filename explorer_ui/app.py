@@ -7,7 +7,7 @@ from explorer_ui.components import main as main_comp # , sidebar
 
 def main():
     app = QApplication(sys.argv)
-    # app.setStyleSheet(load_css("ui/explorer_themes/default"))
+    app.setStyleSheet(load_css("explorer_ui/explorer_themes/default"))
     repository.update_repository()
     repo = repository.data
     window = main_comp.MainWindow(repo)
@@ -24,6 +24,7 @@ def load_css(directory):
                 for line in _variables.splitlines():
                     try:
                         line = line.replace(' ', '')
+                        line = line.replace(';', '') # Some users might like semicolons at the end of lines.
                         var = line.split(':')[0].strip()
                         val = line.split(':')[1].strip()
                         _style = _style.replace(f"{var}", val)
