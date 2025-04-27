@@ -87,36 +87,68 @@ class ThemeManagementScreen(QWidget):
                     padding: 8px;
                 }
             """)
-
-            # Disable/Enable Button
-            is_enabled = installer.is_enabled(profile, theme)
-            button_data = {
-                'text': 'Disable' if is_enabled else 'Enable',
-                'action': (lambda _=None, theme=theme, profile=profile, is_enabled=is_enabled:
-                           (self._disable(theme, profile) if is_enabled else self._enable(theme, profile))),
-                'color': 'blue' if is_enabled else 'green',
-                'objectName': 'disableButton' if is_enabled else 'enableButton',
-            }
-            toggle_enable_button = QPushButton(button_data['text'], buttonwidget)
-            toggle_enable_button.clicked.connect(lambda _, data=button_data: data['action']())
-            toggle_enable_button.setStyleSheet(f"""
-                QPushButton {{
-                    border: none;
-                    padding: 5px;
-                    margin-left: 10px;
-                    border-radius: 4px;
-                    color: {button_data['color']};
-                }}
-                QPushButton:hover {{
-                    color: #333;
-                }}
-            """)
-
-            action_button_layout.addWidget(toggle_enable_button)
+            action_button_layout.addWidget(self._create_update_button(profile, theme))
+            action_button_layout.addWidget(self._create_enable_button(profile, theme))
             action_button_layout.addWidget(uninstall_button)
 
     # def _button_toggle(self):
     #     pass
+    
+    def _create_update_button(self, profile, theme):
+        is_updateable = installer.is_updateable(profile, theme)
+        button_data = {
+            'text': 'Update' if is_updateable else 'Up to date',
+            'action': (lambda _=None, theme=theme, profile=profile:
+                       self._update(theme, profile)),
+            'objectName': 'updateButton' if is_updateable else 'uptodateLabel',
+        }
+        update_button = QPushButton(button_data['text'])
+        update_button.clicked.connect(lambda _, data=button_data: data['action']())
+        update_button.setStyleSheet("""
+            QPushButton {
+                border: none;
+                padding: 5px;
+                margin-left: 10px;
+                border-radius: 4px;
+                color: yellow;
+            }
+            QPushButton:hover {
+                color: #333;
+            }
+            QPushButton:disabled {
+                color: #333;
+            }
+        """)
+        if not is_updateable:
+            update_button.setEnabled(False)
+        return update_button
+    
+    def _create_enable_button(self, profile, theme):
+        is_enabled = installer.is_enabled(profile, theme)
+        button_data = {
+            'text': 'Disable' if is_enabled else 'Enable',
+            'action': (lambda _=None, theme=theme, profile=profile, is_enabled=is_enabled:
+                       (self._disable(theme, profile) if is_enabled else self._enable(theme, profile))),
+            'color': 'blue' if is_enabled else 'green',
+            'objectName': 'disableButton' if is_enabled else 'enableButton',
+        }
+        toggle_enable_button = QPushButton(button_data['text'])
+        toggle_enable_button.clicked.connect(lambda _, data=button_data: data['action']())
+        toggle_enable_button.setStyleSheet(f"""
+            QPushButton {{
+                border: none;
+                padding: 5px;
+                margin-left: 10px;
+                border-radius: 4px;
+                color: {button_data['color']};
+            }}
+            QPushButton:hover {{
+                color: #333;
+            }}
+        """)
+        
+        return toggle_enable_button
+
 
     def resize(self, width):
         self.setFixedWidth(width)
@@ -124,6 +156,14 @@ class ThemeManagementScreen(QWidget):
     def resizeEvent(self, event: QResizeEvent):
         self.resize(event.size().width())
         super().resizeEvent(event)
+    
+    def _update(self, theme, profile):
+        try:
+            installer.update_theme(profile, theme)
+            print(f"Theme {theme} updated in {profile}")
+        except Exception as e:
+            print(f"Error updating theme {theme}: {e}")
+        self.update_themes()
 
     def _uninstall(self, theme, profile):
         try:

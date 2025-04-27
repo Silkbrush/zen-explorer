@@ -1,0 +1,20 @@
+#content {
+    border: none;
+}
+
+QMainWindow {
+    background-color: @background-color;
+    border: none; /* Window never has borders */
+}
+
+QWidget#mainWidget {
+    border: none; /* mainWidget never has borders */
+}
+
+#topBar {
+    background-color: @container-color; 
+    margin: 10px; 
+    margin-bottom: 0; 
+    border: none; 
+    border-radius: @border-radius;
+}

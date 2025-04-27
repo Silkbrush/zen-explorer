@@ -85,7 +85,7 @@ class ThemeBox(QWidget):
         self.setAttribute(Qt.WidgetAttribute.WA_StyledBackground, True)
         self.setStyleSheet("""
             ThemeBox {
-                border-radius: 8px;
+                border-radius: 4px;
                 padding: 5px;
             }
             

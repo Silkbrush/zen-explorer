@@ -144,7 +144,7 @@ def upgrade(args):
     print('Updating themes...')
     for zen_theme in updates:
         try:
-            installer.install_theme(profile, zen_theme, bypass_install=True)
+            installer.update_theme(profile, zen_theme)
         except:
             print(f'Failed to update {updates[zen_theme].name}.')
             raise

@@ -17,9 +17,9 @@ def _extract_ids_from_css(file_path):
         file_path (str): The path to the CSS file.
 
     Returns:
-        list: A list of tuples, where each tuple contains the 
+        list: A list of tuples, where each tuple contains the
               line number (0-based) and the extracted ID.
-              Returns an empty list if the file doesn't exist or 
+              Returns an empty list if the file doesn't exist or
               no matching lines are found.
         str: An error message if the file cannot be read.
     """
@@ -93,7 +93,7 @@ def get_enabled_themes(profile) -> list[str]:
     profile = _profile_exists(profile)
     if not check_installed(profile):
         raise RuntimeError('not installed')
-        
+
     profile_path = _profile_path(profile)
     css_path = f'{profile_path}/chrome/silkthemes-chrome.css'
     ids = [id_tuple[0] for id_tuple in _extract_ids_from_css(css_path)]
@@ -105,11 +105,11 @@ def is_enabled(profile, theme_id):
         raise RuntimeError('zen-explorer not installed')
 
     profile_path = _profile_path(profile)
-    
+
     if not check_installed(profile):
         print('theme not installed')
         return False
-        
+
     with open(f'{profile_path}/chrome/zen-explorer.json', 'r') as f:
         data = json.load(f)
         try:
@@ -121,26 +121,44 @@ def is_enabled(profile, theme_id):
 
     return False
 
+def is_updateable(profile, theme_id):
+    profile = _profile_exists(profile)
+    if not check_installed(profile):
+        raise RuntimeError('not installed')
+
+    profile_path = _profile_path(profile)
+
+    with open(f'{profile_path}/chrome/zen-explorer.json', 'r') as f:
+        data = json.load(f)
+
+    zen_theme: Optional[theme.Theme] = repository.data.get_theme(theme_id)
+    if not zen_theme:
+        return False
+
+    if zen_theme.updated_at.timestamp() > data[theme_id].get('updatedAt', 0):
+        return True
+    return False
+
 def migrate_explorer_json(profile):
     profile = _profile_exists(profile)
     if not check_installed(profile):
         pass
 
     profile_path = _profile_path(profile)
-    
+
     if not os.path.isfile(f'{profile_path}/chrome/zen-explorer.json'):
         return
-        
+
     with open(f'{profile_path}/chrome/zen-explorer.json', 'r') as f:
         data = json.load(f)
-    
+
     for zen_theme in data:
         data[zen_theme]['enabled'] = is_enabled(profile, zen_theme)
-    
+
     with open(f'{profile_path}/chrome/zen-explorer.json', 'w+') as f:
         # noinspection PyTypeChecker
         json.dump(data, f, indent=4)
-        
+
 for profile in zen_profiles:
     print(f'Updating profile: {profile}')
     migrate_explorer_json(profile)
@@ -212,7 +230,7 @@ def is_installed(profile, theme_id):
             data = json.load(f)
         return theme_id in data
 
-def install_theme(profile, theme_id, bypass_install=False, staging=False):
+def install_theme(profile, theme_id, bypass_install=False, staging=False, write_css=True):
     print(f'trying to install theme: {theme_id}')
     profile = _profile_exists(profile)
     if (check_userchrome(profile) or check_usercontent(profile)) and not check_installed(profile) and not bypass_install:
@@ -264,7 +282,9 @@ def install_theme(profile, theme_id, bypass_install=False, staging=False):
         print('\nSimulated content write')
         print(content)
     else:
-        _apply_css(profile_path, new_data)
+        # Only apply CSS if write_css is True
+        if write_css:
+            _apply_css(profile_path, new_data)
 
     if not staging:
         if not os.path.isdir(f'{_profile_path(profile)}/chrome'):
@@ -279,6 +299,9 @@ def install_theme(profile, theme_id, bypass_install=False, staging=False):
         with open(f'{_profile_path(profile)}/chrome/zen-explorer.json', 'w+') as f:
             # noinspection PyTypeChecker
             json.dump(new_data, f, indent=4)
+
+def update_theme(profile, theme_id):
+    install_theme(profile, theme_id, bypass_install=True, write_css=False)
 
 def uninstall_theme(profile, theme_id, staging=False):
     profile = _profile_exists(profile)
@@ -320,7 +343,7 @@ def uninstall_theme(profile, theme_id, staging=False):
     else:
         _apply_css(profile_path, data)
 
-def get_updates(profile) -> dict:
+def get_updates(profile) -> list:
     profile = _profile_exists(profile)
     if not check_installed(profile):
         raise RuntimeError('not installed')
@@ -330,14 +353,10 @@ def get_updates(profile) -> dict:
     with open(f'{profile_path}/chrome/zen-explorer.json', 'r') as f:
         data = json.load(f)
 
-    updates = {}
+    updates = []
     for theme_id in data:
-        zen_theme: Optional[theme.Theme] = repository.data.get_theme(theme_id)
-        if not zen_theme:
-            continue
-
-        if zen_theme.updated_at.timestamp() > data[theme_id].get('updatedAt', 0):
-            updates[theme_id] = zen_theme
+        if is_updateable(profile, theme_id):
+            updates.append(theme_id)
 
     return updates
 
@@ -355,12 +374,12 @@ def disable_theme(profile, theme_id, staging=False):
     print(theme_id in data)
     if not is_installed(profile, theme_id):
         raise FileNotFoundError('theme not installed')
-    
+
     if not is_enabled(profile, theme_id):
         print(f'Theme {theme_id} is already disabled')
         return
 
-    
+
     if staging:
         print('Simulated data update')
     else:
@@ -378,20 +397,20 @@ def disable_theme(profile, theme_id, staging=False):
         print(content)
     else:
         _apply_css(profile_path, data)
-        
+
 def enable_theme(profile, theme_id, staging=False):
     profile = _profile_exists(profile)
     if not check_installed(profile):
         raise RuntimeError('not installed')
 
     profile_path = _profile_path(profile)
-    
+
     if not check_installed(profile):
         raise RuntimeError('theme not installed')
-    
+
     with open(f'{profile_path}/chrome/zen-explorer.json', 'r') as f:
         data = json.load(f)
-    
+
     if not theme_id in data:
         raise FileNotFoundError('theme not installed')
 
@@ -414,4 +433,3 @@ def enable_theme(profile, theme_id, staging=False):
         print(content)
     else:
         _apply_css(profile_path, data)
-        
