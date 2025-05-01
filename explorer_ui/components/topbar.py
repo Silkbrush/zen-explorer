@@ -56,6 +56,9 @@ class TopBar(QWidget):
         # Internal variables
         self.__ready: bool = False
         self.__widgets: widgets.WidgetHandler = widgets.WidgetHandler()
+        
+        # ...
+        # in the __init__ method
 
     def _create_buttons(self):
         """Internal function to create buttons."""
@@ -65,7 +68,22 @@ class TopBar(QWidget):
             self.navigation_area.itemAt(i).widget().deleteLater()
         for i in reversed(range(self.profile_area.count())):
             self.profile_area.itemAt(i).widget().deleteLater()
+            
+        for button in self._create_navigation_buttons():
+            self.navigation_area.addWidget(button)
+            self.__widgets.add_widget(button)
+        
+        for button in self._create_profile_buttons():
+            self.profile_area.addWidget(button)
+            self.__widgets.add_widget(button)
+            
+        self.profile_area.addWidget(self._create_profile_selector())
+        self._root.profile = self._profiles[0]
 
+        # Run update
+        self._update_buttons()
+    
+    def _create_navigation_buttons(self):
         # Add buttons to navigation area
         for name, behavior in self._behaviors.items():
             button = QPushButton(name)
@@ -84,9 +102,11 @@ class TopBar(QWidget):
                     background-color: #3498db;
                 }
             """)
-            self.__widgets.add_widget(button)
-            self.navigation_area.addWidget(button)
-
+            # self.__widgets.add_widget(button)
+            # self.navigation_area.addWidget(button)
+            yield button
+    
+    def _create_profile_buttons(self):
         # Add install button to profile area
         install_button = QPushButton('Install')
         install_button.setObjectName('buttonInstall')
@@ -104,9 +124,10 @@ class TopBar(QWidget):
                 background-color: #3498db;
             }
         """)
-        self.profile_area.addWidget(install_button)
-        self.__widgets.add_widget(install_button)
-
+        # self.profile_area.addWidget(install_button)
+        # self.__widgets.add_widget(install_button)
+        yield install_button
+        
         # Add uninstall button to profile area
         uninstall_button = QPushButton('Uninstall')
         uninstall_button.setObjectName('buttonUninstall')
@@ -125,9 +146,11 @@ class TopBar(QWidget):
                 background-color: #3498db;
             }
         """)
-        self.profile_area.addWidget(uninstall_button)
-        self.__widgets.add_widget(uninstall_button)
-
+        # self.profile_area.addWidget(uninstall_button)
+        # self.__widgets.add_widget(uninstall_button)
+        yield uninstall_button
+        
+    def _create_profile_selector(self):
         # Add profile selector
         choices = [f'{profile.name} ({profile.id})' for profile in self._profiles]
         profile_selector = QComboBox()
@@ -161,11 +184,8 @@ class TopBar(QWidget):
                 background-color: #222;
             }
         """)
-        self.profile_area.addWidget(profile_selector)
-        self._root.profile = self._profiles[0]
-
-        # Run update
-        self._update_buttons()
+        return profile_selector
+        
 
     def _update_buttons(self):
         """Internal function to update existing buttons."""
