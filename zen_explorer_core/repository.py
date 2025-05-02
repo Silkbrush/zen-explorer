@@ -32,9 +32,9 @@ class RepositoryData:
         return self._themes.get(zen_theme)
 
     def get_theme_readme(self, zen_theme) -> Optional[str]:
-        if not zen_theme in self._themes:
+        if zen_theme not in self._themes:
             return None
-        with open(f'{self._path}/themes/{zen_theme}/README.md') as f:
+        with open(f'{self._path}/themes/{zen_theme}/README.md', encoding='utf-8') as f:
             readme = f.read()
         return readme
 
