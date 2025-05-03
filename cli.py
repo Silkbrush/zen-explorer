@@ -135,7 +135,8 @@ def upgrade(args):
 
     print('Available updates:')
     for zen_theme in updates:
-        print(f'{zen_theme.name} ({zen_theme.version})')
+        theme_data = repository.data.get_theme(zen_theme)
+        print(f'{theme_data.name} ({theme_data.version})')
 
     choice = input('\nUpdate themes? (Y/n): ')
     if choice.lower() != 'y':
@@ -144,9 +145,10 @@ def upgrade(args):
     print('Updating themes...')
     for zen_theme in updates:
         try:
-            installer.update_theme(profile, zen_theme.id)
+            theme_data = repository.data.get_theme(zen_theme)
+            installer.update_theme(profile, zen_theme)
         except:
-            print(f'Failed to update {zen_theme.name}.')
+            print(f'Failed to update {zen_theme}.')
             raise
 
     print('Themes updated.')
