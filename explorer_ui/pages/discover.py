@@ -1,3 +1,5 @@
+import time
+from typing_extensions import Optional
 from PySide6.QtWidgets import (
     QApplication,
     QWidget,
@@ -7,6 +9,7 @@ from explorer_ui.utils import images
 from explorer_ui.components import theme_box as theme_box_component
 from typing import TYPE_CHECKING, Any
 import threading
+from thefuzz import fuzz
 
 if TYPE_CHECKING:
     from explorer_ui.components.main import MainWindow
@@ -25,15 +28,25 @@ class ThemeBrowseScreen(QWidget):
         self.grid.setHorizontalSpacing(self.grid_min_gap)
         self.grid.setVerticalSpacing(self.grid_min_gap)
         self.setLayout(self.grid)
-        self.theme_boxes = []
-        self.load_themes()
         self.previous_max_col = 0
         self.previous_row = 0
+        self.theme_boxes = []
+        self.load_themes()
         self.resize(self._root.width())
 
-    def load_themes(self):
-        print(f"{self.repo.themes}")
+    def _remove_themes(self):
+        while self.grid.count():
+            item = self.grid.takeAt(0)
+            widget = item.widget()
+            print('removed ', widget)
+            if widget is not None:
+                widget.deleteLater()
 
+    def load_themes(self, themes: Optional[dict]=None):
+        self._remove_themes()
+        self.theme_boxes = []
+        themes = themes if themes else self.repo.themes
+        print(f"loading themes {themes}")
         def get_thumbnail(theme,url):
             try:
                 self._root.thumbnails[theme] = images.get_pixmap(url)
@@ -41,8 +54,8 @@ class ThemeBrowseScreen(QWidget):
                 pass
 
         threads = []
-        for index, (theme_id, theme_data) in enumerate(self.repo.themes.items()):
-            if theme_data.thumbnail and not theme_id in self._root.thumbnails.keys():
+        for index, (theme_id, theme_data) in enumerate(themes.items()):
+            if theme_data.thumbnail and theme_id not in self._root.thumbnails.keys():
                 thread = threading.Thread(target=get_thumbnail, args=(theme_id, theme_data.thumbnail))
                 thread.start()
                 threads.append(thread)
@@ -50,13 +63,28 @@ class ThemeBrowseScreen(QWidget):
         for thread in threads:
             thread.join()
 
-        for index, (theme_id, theme_data) in enumerate(self.repo.themes.items()):
-            print(f"Loading theme {theme_id} with index {index}")
+        for index, (theme_id, theme_data) in enumerate(themes.items()):
             thumbnail = self._root.thumbnails.get(theme_id, self._root.default_thumbnail)
             theme_box = theme_box_component.ThemeBox(self._root, self.repo.get_theme(theme_id), thumbnail)
-            theme_box.clicked.connect(lambda checked=False, theme=theme_data: self.load_theme(theme))
-            self.grid.addWidget(theme_box, index // self.max_col, index % self.max_col)
+            theme_box.clicked.connect(lambda checked=False, tid=theme_id: self.load_theme(self.repo.get_theme(tid)))
+            # self.grid.addWidget(theme_box, index // self.max_col, index % self.max_col)
             self.theme_boxes.append(theme_box)
+
+        # self.resize(self.width())
+        self.layout().activate()
+        self.update()
+        self.resize(self.width())
+
+    def search(self, query):
+        def get_sort_key(item, query):
+            key, obj = item
+            # Compute the fuzzy ratio based on the `name` attribute
+            return fuzz.partial_ratio(obj.name, query)
+
+        sorted_items = sorted(self.repo.themes.items(), key=lambda item: get_sort_key(item, query), reverse=True)
+        sorted_dict = dict(sorted_items)
+        self.load_themes(sorted_dict)
+
 
     def load_theme(self, theme):
         # Get the widget at index 1 which is the ThemeScreen instance
@@ -90,22 +118,20 @@ class ThemeBrowseScreen(QWidget):
         max_heights = []
 
         for index, theme_box in enumerate(self.theme_boxes):
-            if col >= max_col:
-                col = 0
-                row += 1
+            row = index // max_col
+            col = index % max_col
             self.grid.addWidget(theme_box, row, col)
-            self.grid.setRowMinimumHeight(row, theme_box.height())
-            self.grid.setRowStretch(row, 1)
-            col += 1
 
             if len(max_heights) <= row:
                 max_heights.append(theme_box.height())
             else:
                 max_heights[row] = max(max_heights[row], theme_box.height())
 
-        self.grid.setVerticalSpacing(10)
+            self.grid.setRowMinimumHeight(row, theme_box.height())
+            self.grid.setRowStretch(row, 1)
 
-        self.previous_row = row
+        self.grid.setVerticalSpacing(10)
+        self.previous_row = (len(self.theme_boxes) - 1) // max_col
 
         self.setMinimumWidth(width)
         self.setMaximumWidth(width)

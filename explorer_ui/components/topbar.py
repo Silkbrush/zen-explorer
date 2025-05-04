@@ -1,7 +1,8 @@
-from PySide6.QtWidgets import QPushButton, QHBoxLayout, QComboBox
+from PySide6.QtWidgets import QLineEdit, QPushButton, QHBoxLayout, QComboBox
 from PySide6.QtCore import Qt
 from explorer_ui.models import pages
 from explorer_ui.models.widgets import QWidget
+from explorer_ui.pages import overview
 from explorer_ui.utils import widgets
 from zen_explorer_core import installer
 from typing import TYPE_CHECKING, Any
@@ -29,12 +30,16 @@ class TopBar(QWidget):
         # Create and add widget areas
         self.navigation_area = QHBoxLayout()
         self.profile_area = QHBoxLayout()
+        self.search_area = QHBoxLayout()
         self.wrapper_area.addLayout(self.navigation_area)
+        self.wrapper_area.addLayout(self.search_area)
         self.wrapper_area.addLayout(self.profile_area)
+
 
         # Align areas
         self.navigation_area.setAlignment(Qt.AlignmentFlag.AlignLeft)
         self.profile_area.setAlignment(Qt.AlignmentFlag.AlignRight)
+        self.search_area.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
         # Button names + behaviors
         self._behaviors: dict = {
@@ -56,9 +61,6 @@ class TopBar(QWidget):
         # Internal variables
         self.__ready: bool = False
         self.__widgets: widgets.WidgetHandler = widgets.WidgetHandler()
-        
-        # ...
-        # in the __init__ method
 
     def _create_buttons(self):
         """Internal function to create buttons."""
@@ -68,21 +70,21 @@ class TopBar(QWidget):
             self.navigation_area.itemAt(i).widget().deleteLater()
         for i in reversed(range(self.profile_area.count())):
             self.profile_area.itemAt(i).widget().deleteLater()
-            
+
         for button in self._create_navigation_buttons():
             self.navigation_area.addWidget(button)
             self.__widgets.add_widget(button)
-        
+
         for button in self._create_profile_buttons():
             self.profile_area.addWidget(button)
             self.__widgets.add_widget(button)
-            
+
         self.profile_area.addWidget(self._create_profile_selector())
         self._root.profile = self._profiles[0]
 
         # Run update
         self._update_buttons()
-    
+
     def _create_navigation_buttons(self):
         # Add buttons to navigation area
         for name, behavior in self._behaviors.items():
@@ -97,7 +99,7 @@ class TopBar(QWidget):
                     border-radius: 4px;
                     color: white;
                 }
-                
+
                 QPushButton[active] {
                     background-color: #3498db;
                 }
@@ -105,7 +107,7 @@ class TopBar(QWidget):
             # self.__widgets.add_widget(button)
             # self.navigation_area.addWidget(button)
             yield button
-    
+
     def _create_profile_buttons(self):
         # Add install button to profile area
         install_button = QPushButton('Install')
@@ -127,7 +129,7 @@ class TopBar(QWidget):
         # self.profile_area.addWidget(install_button)
         # self.__widgets.add_widget(install_button)
         yield install_button
-        
+
         # Add uninstall button to profile area
         uninstall_button = QPushButton('Uninstall')
         uninstall_button.setObjectName('buttonUninstall')
@@ -149,7 +151,7 @@ class TopBar(QWidget):
         # self.profile_area.addWidget(uninstall_button)
         # self.__widgets.add_widget(uninstall_button)
         yield uninstall_button
-        
+
     def _create_profile_selector(self):
         # Add profile selector
         choices = [f'{profile.name} ({profile.id})' for profile in self._profiles]
@@ -166,7 +168,7 @@ class TopBar(QWidget):
                 border-radius: 4px;
                 color: white;
             }
-            
+
             QComboBox::drop-down {
                 subcontrol-origin: padding;
                 subcontrol-position: center right;
@@ -185,14 +187,41 @@ class TopBar(QWidget):
             }
         """)
         return profile_selector
-        
+
+    def _create_search_bar(self):
+        self.search_bar = QLineEdit()
+        self.search_bar.setPlaceholderText("Search")
+        self.search_bar.textChanged.connect(lambda _: self._search(self.search_bar.text()))
+        self.search_bar.setStyleSheet("""
+            QLineEdit {
+                background-color: #333;
+                color: #fff;
+                border: none;
+                padding: 5px;
+                border-radius: 5px;
+            }
+        """)
+        self.search_area.addWidget(self.search_bar)
+
+    def _search(self, query):
+        if self._root.get_current_page() == pages.Pages.discover:
+            self._root.get_current_page_content().search(query)
+
+    def _update_search_bar(self):
+        if self._root.get_current_page() == pages.Pages.discover:
+            self.search_bar.show()
+            self.search_bar.setFocus()
+            print("Search bar shown")
+        else:
+            self.search_bar.hide()
+            print("Search bar hidden")
 
     def _update_buttons(self):
         """Internal function to update existing buttons."""
 
         for button in self._btn_pages:
             button_obj = self.__widgets.get_widget(button)
-            if self._root.page == self._btn_pages[button]:
+            if self._root.get_current_page() == self._btn_pages[button]:
                 button_obj.setProperty("active", "true")
             else:
                 button_obj.setProperty("active", None)
@@ -201,7 +230,7 @@ class TopBar(QWidget):
         # If not on overview page, hide install button
         install_button = self.__widgets.get_widget('buttonInstall')
         uninstall_button = self.__widgets.get_widget('buttonUninstall')
-        if self._root.page == pages.Pages.overview:
+        if self._root.get_current_page() == pages.Pages.overview:
             # Check if theme is installed
             theme = self._root.theme
             installed = installer.is_installed(
@@ -228,6 +257,7 @@ class TopBar(QWidget):
 
         # Create buttons
         self._create_buttons()
+        self._create_search_bar()
 
         # Set ready state
         self.__ready = True
@@ -256,3 +286,4 @@ class TopBar(QWidget):
     def handle_page_update(self):
         # Update buttons
         self._update_buttons()
+        self._update_search_bar()

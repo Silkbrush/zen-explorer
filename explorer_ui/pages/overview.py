@@ -116,8 +116,9 @@ class ThemeScreen(QWidget):
     def get_readme(self):
         try:
             return self._root.repository.get_theme_readme(self.theme.id) or 'No README available'
-        except FileNotFoundError:
-            return 'No README available'
+        except Exception as e:
+            return f'Encountered an error: {e}'
+        
 
     def get_readme_item(self):
         # Get the markdown text

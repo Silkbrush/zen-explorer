@@ -24,7 +24,7 @@ def _extract_ids_from_css(file_path):
         str: An error message if the file cannot be read.
     """
     results = []
-    # Regex to match @import url("zen-explorer-themes/some-id...") and capture the ID
+    # Regex to match @import url("zen-explorer-themes/(some-id)/...") and capture the ID
     pattern = re.compile(r'^@import\s+url\("zen-explorer-themes/([^/]+).*\);$')
 
     if not os.path.exists(file_path):
@@ -48,7 +48,7 @@ def _profile_path(profile):
     return profiles.get_profile_path(profile)
 
 def _profile_exists(profile):
-    if not profile in zen_profiles:
+    if profile not in zen_profiles:
         for profile_name in zen_profiles:
             if profile == profile_name.split('.', 1)[0]:
                 return profile_name
@@ -194,7 +194,7 @@ def _append_to_file(path, line):
 
     userchrome = [line[:-1] for line in lines if line.endswith('\n')]
     print(line, userchrome, line in userchrome)
-    if not line in userchrome:
+    if line not in userchrome:
         lines.insert(0, f'{line}\n')
         with open(path, 'w+') as f:
             f.writelines(lines)
@@ -313,7 +313,7 @@ def uninstall_theme(profile, theme_id, staging=False):
     with open(f'{profile_path}/chrome/zen-explorer.json', 'r') as f:
         data = json.load(f)
 
-    if not theme_id in data:
+    if theme_id not in data:
         raise FileNotFoundError('theme not installed')
 
     if staging:
@@ -411,7 +411,7 @@ def enable_theme(profile, theme_id, staging=False):
     with open(f'{profile_path}/chrome/zen-explorer.json', 'r') as f:
         data = json.load(f)
 
-    if not theme_id in data:
+    if theme_id not in data:
         raise FileNotFoundError('theme not installed')
 
     data[theme_id]['enabled'] = True

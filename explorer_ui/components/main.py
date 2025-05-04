@@ -82,6 +82,12 @@ class MainWindow(QMainWindow):
 
         # Set ready status
         self.__ready = True
+    
+    def get_current_page(self):
+        return self.page
+
+    def get_current_page_content(self):
+        return self.content.get_content()
 
     def navigate(self, page: pages.Pages):
         # wip

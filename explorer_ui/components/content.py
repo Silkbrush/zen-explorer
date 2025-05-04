@@ -27,6 +27,9 @@ class Content(QScrollArea):
         self.setWidget(widget)
         self.__widget = widget
 
+    def get_content(self):
+        return self.__widget
+
     # Prepare method
     def prepare(self):
         """Prepares the widget for use."""
