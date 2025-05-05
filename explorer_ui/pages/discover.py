@@ -78,12 +78,14 @@ class ThemeBrowseScreen(QWidget):
     def search(self, query):
         def get_sort_key(item, query):
             key, obj = item
-            # Compute the fuzzy ratio based on the `name` attribute
-            return fuzz.partial_ratio(obj.name, query)
+            # Compute the fuzzy ratio based on the `name` attribute 
+            return fuzz.ratio(obj.name, query)
 
-        sorted_items = sorted(self.repo.themes.items(), key=lambda item: get_sort_key(item, query), reverse=True)
+        filtered_items = filter(lambda x: get_sort_key(x, query) > 30, self.repo.themes.items())
+        sorted_items = sorted(filtered_items, key=lambda item: get_sort_key(item, query), reverse=True)
         sorted_dict = dict(sorted_items)
         self.load_themes(sorted_dict)
+        print([(obj.name, get_sort_key((key, obj), query)) for key, obj in self.repo.themes.items()])
 
 
     def load_theme(self, theme):
