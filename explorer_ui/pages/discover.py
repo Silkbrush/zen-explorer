@@ -1,15 +1,19 @@
-import time
 from typing_extensions import Optional
 from PySide6.QtWidgets import (
     QApplication,
-    QWidget,
+    QHBoxLayout,
     QGridLayout
 )
+
+from explorer_ui.models.widgets import QWidget
+from explorer_ui.components.sidebar import SideBar
 from explorer_ui.utils import images
 from explorer_ui.components import theme_box as theme_box_component
 from typing import TYPE_CHECKING, Any
 import threading
 from thefuzz import fuzz
+
+from zen_explorer_core.models.theme import ThemeType
 
 if TYPE_CHECKING:
     from explorer_ui.components.main import MainWindow
@@ -23,14 +27,20 @@ class ThemeBrowseScreen(QWidget):
         self.repo = self._root.repository
         self.app = QApplication.instance()
         self.max_col = max_col
+        self._layout = QHBoxLayout()
         self.grid = QGridLayout()
+        self.sidebar = SideBar(self)
+        self._layout.addWidget(self.sidebar)
+        self._layout.addLayout(self.grid)
         self.grid_min_gap = 10
         self.grid.setHorizontalSpacing(self.grid_min_gap)
         self.grid.setVerticalSpacing(self.grid_min_gap)
-        self.setLayout(self.grid)
+        self.setLayout(self._layout)
         self.previous_max_col = 0
         self.previous_row = 0
         self.theme_boxes = []
+        self.active_tags = []
+        self.active_types = []
         self.load_themes()
         self.resize(self._root.width())
 
@@ -70,8 +80,6 @@ class ThemeBrowseScreen(QWidget):
             # self.grid.addWidget(theme_box, index // self.max_col, index % self.max_col)
             self.theme_boxes.append(theme_box)
 
-        # self.resize(self.width())
-        self.layout().activate()
         self.update()
         self.resize(self.width())
 
@@ -87,9 +95,50 @@ class ThemeBrowseScreen(QWidget):
         self.load_themes(sorted_dict)
         print([(obj.name, get_sort_key((key, obj), query)) for key, obj in self.repo.themes.items()])
 
+    def collapse_sidebar(self):
+        self.sidebar.hide()
+
+    def filter_by_tag(self, tag: str, active: bool):
+        return 
+        # if active and tag not in self.active_tags:
+        #     self.active_tags.append(tag)  
+        # elif tag in self.active_tags and not active: 
+        #     self.active_tags.remove(tag)
+        # 
+        # def filter_tags(item):
+        #     key, obj = item
+        #     if len(self.active_tags) == 0:
+        #         return True
+        #     else:
+        #         for tag in self.active_tags:
+        #             if tag in obj.tags:
+        #                 return True
+        #         return False
+        #     
+        # 
+        # filtered_items = filter(lambda x: filter_tags(x), self.repo.themes.items())
+
+    def filter_by_type(self, type: ThemeType, active: bool):
+        if active and type not in self.active_types:
+            self.active_types.append(type)
+        elif type in self.active_types and not active:
+            self.active_types.remove(type)
+
+        def filter_types(item):
+            key, obj = item
+            if len(self.active_types) == 0:
+                return True
+            else:
+                for active_type in self.active_types:
+                    if obj.type == active_type:
+                        return True
+                return False
+
+        filtered_items = filter(lambda x: filter_types(x), self.repo.themes.items())
+        self.load_themes(dict(filtered_items))
+        
 
     def load_theme(self, theme):
-        # Get the widget at index 1 which is the ThemeScreen instance
         pass
 
     def resize(self, width):
@@ -144,3 +193,4 @@ class ThemeBrowseScreen(QWidget):
 
     def resizeEvent(self, event):
         self.resize(self.parentWidget().width())
+

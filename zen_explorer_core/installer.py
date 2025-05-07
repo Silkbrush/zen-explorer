@@ -266,7 +266,12 @@ def install_theme(profile, theme_id, bypass_install=False, staging=False, write_
         if staging:
             print(f'Simulated data copy: {theme_path}/{file} => {profile_path}/chrome/zen-explorer-themes/{theme_id}/{file}')
         else:
-            shutil.copy2(f'{theme_path}/{file}', f'{profile_path}/chrome/zen-explorer-themes/{theme_id}/{file}')
+            try:
+                shutil.copy2(f'{theme_path}/{file}', f'{profile_path}/chrome/zen-explorer-themes/{theme_id}/{file}')
+            except FileNotFoundError:
+                print(f'File not found: {theme_path}/{file}, skipping') # TODO add handling on github or local side
+
+                pass
 
     for folder in zen_theme.folders:
         if staging:
