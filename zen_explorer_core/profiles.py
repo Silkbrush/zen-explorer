@@ -6,6 +6,7 @@ from typing_extensions import Optional, Union, Literal
 
 
 home = str(Path.home())
+browsers = ["zen", "firefox"]
 browser: Union[Literal["zen"], Literal["firefox"]] = "firefox"
 paths = {
     'zen': {
@@ -58,7 +59,7 @@ def _get_paths():
         paths.extend(_get_windows_path())
     else:
         try:
-            paths.append(_get_flatpak_path())
+            paths.extend(_get_flatpak_path())
         except Exception:
             pass
         try:
@@ -97,7 +98,7 @@ def get_profiles():
     """
     paths = _get_paths()
     profiles = []
-    profile_includes_dirs = ['storage', 'shader-cache', 'extension-store']  # Example list of required directories
+    profile_includes_dirs = ['storage', 'extension-store']  # Example list of required directories
     for path in paths:
         possible_profiles = os.listdir(path)
 
