@@ -44,6 +44,7 @@ class MainWindow(QMainWindow):
         # Window components
         self.topbar: Optional[topbar.TopBar] = None
         self.content: Optional[content.Content] = None
+        self.current_screen: Optional[QWidget] = None
 
         # Window variables
         self.page: pages.Pages = pages.Pages.discover
@@ -96,12 +97,13 @@ class MainWindow(QMainWindow):
         self.topbar.handle_page_update()
 
         if page == pages.Pages.discover:
-            self.content.set_content(discover.ThemeBrowseScreen(self))
+            screen = discover.ThemeBrowseScreen(self)
         elif page == pages.Pages.overview:
-            self.content.set_content(overview.ThemeScreen(self))
+            screen = overview.ThemeScreen(self)
         elif page == pages.Pages.manage:
             screen = management.ThemeManagementScreen(self)
-            self.content.set_content(screen)
+        self.current_screen = screen
+        self.content.set_content(screen)
 
         self.content.resize()
 

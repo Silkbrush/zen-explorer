@@ -2,70 +2,68 @@ import json
 import os
 import sys
 from pathlib import Path
-from typing_extensions import Optional
+from typing_extensions import Optional, Union, Literal
 
 
 home = str(Path.home())
-
+browser: Union[Literal["zen"], Literal["firefox"]] = "firefox"
+paths = {
+    'zen': {
+        'macos': [home + '/Library/Application Support/zen/Profiles'],
+        'windows': [home + '/AppData/Roaming/zen/Profiles'],
+        'linux': [home + '/.zen/Profiles', home + '/.zen'],
+        'flatpak': [home + '/.var/app/app.zen_browser.zen/.zen'],
+    },
+    'firefox': {
+        'macos': [home + '/Library/Application Support/Firefox/Profiles'],
+        'windows': [home + '/AppData/Roaming/Mozilla/Firefox/Profiles'],
+        'linux': [home + '/.mozilla/firefox'],
+        'flatpak': [home + '/.var/app/org.mozilla.firefox/.mozilla/firefox'],
+    }
+}
 
 def _get_macos_path():
-    path = home + '/Library/Application Support/zen/Profiles'
-
-    if not os.path.exists(path):
-        raise NotADirectoryError('Zen Browser is not installed')
-
-    return path
+    for path in paths[browser]['macos']:
+        if os.path.exists(path):
+            yield path
 
 
 def _get_windows_path():
-    path = home + '/AppData/Roaming/zen/Profiles'
-
-    if not os.path.exists(path):
-        raise NotADirectoryError('Zen Browser is not installed')
-
-    return path
+    for path in paths[browser]['windows']:
+        if os.path.exists(path):
+            yield path
 
 
 def _get_linux_path():
-    zen_path = home + '/.zen'
-    path = home + '/.zen/Profiles'
-
-    if os.path.exists(zen_path):
+    for path in paths[browser]['linux']:
         if os.path.exists(path):
-            return path
-        
-        else:
-            if os.path.exists(zen_path):
-                return zen_path
+            yield path
             
     raise NotADirectoryError('Zen Browser is not installed')
 
 
 def _get_flatpak_path():
-    path = home + '/.var/app/app.zen_browser.zen/.zen'
+    for path in paths[browser]['flatpak']:
+        if os.path.exists(path):
+            yield path
 
-    if not os.path.exists(path):
-        raise NotADirectoryError('Zen Browser is not installed')
-
-    return path
+    raise NotADirectoryError('Zen Browser is not installed')
 
 def _get_paths():
     os_name = sys.platform
-
+    paths = []
     if os_name == 'darwin':
-        paths = [_get_macos_path()]
+        paths.extend(_get_macos_path())
     elif os_name == 'win32':
-        paths = [_get_windows_path()]
+        paths.extend(_get_windows_path())
     else:
-        paths = []
-
         try:
             paths.append(_get_flatpak_path())
-        except:
+        except Exception:
             pass
         try:
-            paths.append(_get_linux_path())
-        except:
+            paths.extend(_get_linux_path())
+        except Exception:
             if not paths:
                 raise
 
@@ -99,7 +97,7 @@ def get_profiles():
     """
     paths = _get_paths()
     profiles = []
-    profile_includes_dirs = ['storage', 'settings']  # Example list of required directories
+    profile_includes_dirs = ['storage', 'shader-cache', 'extension-store']  # Example list of required directories
     for path in paths:
         possible_profiles = os.listdir(path)
 

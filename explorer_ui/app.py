@@ -1,6 +1,5 @@
 import sys
 import os
-from PySide6.QtGui import QFont
 from PySide6.QtWidgets import QApplication
 from zen_explorer_core import repository
 from explorer_ui.components import main as main_comp # , sidebar
@@ -16,7 +15,8 @@ def main():
     sys.exit(app.exec())
 
 def load_css(directory):
-    with open(f"{directory}/style.css", "r") as f:
+    file = f"{directory}/style.css" if os.path.isfile(f"{directory}/style.css") else f"{directory}/style.qss"
+    with open(file, "r") as f:
         _style = f.read()
         if os.path.isfile(f"{directory}/variables.txt"):
             with open(f"{directory}/variables.txt", "r") as f2:
@@ -28,6 +28,6 @@ def load_css(directory):
                         var = line.split(':')[0].strip()
                         val = line.split(':')[1].strip()
                         _style = _style.replace(f"{var}", val)
-                    except Exception as e:
+                    except Exception:
                         pass
         return _style
