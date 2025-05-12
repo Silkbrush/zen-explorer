@@ -5,6 +5,9 @@ jobs:
   build:
     name: Build
     uses: ./.github/workflows/build.yml
+    permissions:
+      contents: read
+      artifacts: write
   release:
     name: Release
     needs: [build]

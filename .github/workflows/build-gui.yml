@@ -9,6 +9,9 @@ jobs:
         os: [ macos-latest, ubuntu-latest, windows-latest ]
 
     runs-on: ${{ matrix.os }}
+    permissions:
+      contents: read
+      artifacts: write
 
     steps:
       - uses: actions/checkout@v4
@@ -16,6 +19,14 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: '3.12'
+      - name: Get version
+        run: python3 scripts/get_version.py
+      - run: echo ${{ env.VERSION }}
+      - name: Download icons
+        uses: actions/checkout@v4
+        with:
+          repository: Silkbrush/assets
+          path: assets
       - name: Install dependencies
         run: pip install -r requirements.txt
       - name: Install zip
@@ -30,36 +41,63 @@ jobs:
           script-name: main_rewrite.py
           mode: app
           disable-cache: true
-          macos-app-name: Zen Explorer
+          macos-app-name: Silkthemes
           enable-plugins: pyside6
-          include-data-dir: explorer_ui/assets, explorer_ui/explorer_themes
+          include-data-dir: explorer_ui/assets=explorer_ui/explorer_themes
+          macos-app-icon: assets/app-icons/silkbrush-mac.icns
+          macos-target-arch: arm64
+          windows-icon-from-ico: assets/app-icons/silkbrush-windows.ico
+          file-version: ${{ env.VERSION }}
+          macos-app-version: ${{ env.VERSION }}
+      - name: Build (macOS x86_64)
+        uses: Nuitka/Nuitka-Action@main
+        with:
+          nuitka-version: main
+          script-name: main_rewrite.py
+          mode: app
+          disable-cache: true
+          macos-app-name: Silkthemes
+          enable-plugins: pyside6
+          include-data-dir: explorer_ui/assets=explorer_ui/explorer_themes
+          macos-app-icon: assets/app-icons/silkbrush-mac.icns
+          macos-target-arch: x86_64
+          windows-icon-from-ico: assets/app-icons/silkbrush-windows.ico
+          output-dir: build_intel
+          file-version: ${{ env.VERSION }}
+          macos-app-version: ${{ env.VERSION }}
       - name: Rename (Linux)
         if: ${{ matrix.os == 'ubuntu-latest' }}
-        run: mv build/main_rewrite.bin build/zen-explorer-gui
+        run: mv build/main_rewrite.bin build/silkthemes
       - name: Rename (macOS)
         if: ${{ matrix.os == 'macos-latest' }}
-        run: mv build/main_rewrite.app build/Zen\ Explorer.app
+        run: mv build/main_rewrite.app build/Silkthemes.app; mv build_intel/main_rewrite.app build_intel/Silkthemes.app
       - name: Rename (PowerShell)
         if: ${{ matrix.os == 'windows-latest' }}
-        run: Rename-Item -Path build/cli.exe -NewName zen-explorer.exe
+        run: Rename-Item -Path build/main_rewrite.exe -NewName silkthemes.exe
       - name: Compress to ZIP (macOS)
         if: ${{ matrix.os == 'macos-latest' }}
-        run: cd build; zip -r ../zen-explorer-${{ matrix.os }}.zip ./Zen\ Explorer.app
+        run: cd build; zip -r ../silkthemes-aarch64.zip ./Silkthemes.app; cd ../build_intel; zip -r ../silkthemes-x86_64.zip ./Silkthemes.app
       - name: Upload package (Linux)
         uses: actions/upload-artifact@v4
         if: ${{ matrix.os == 'ubuntu-latest' }}
         with:
-          name: zen-explorer-${{ matrix.os }}
-          path: build/zen-explorer-${{ matrix.os }}
-      - name: Upload package (macOS)
+          name: silkthemes-linux-x86_64
+          path: build/silkthemes
+      - name: Upload package (macOS arm64)
         uses: actions/upload-artifact@v4
         if: ${{ matrix.os == 'macos-latest' }}
         with:
-          name: zen-explorer-${{ matrix.os }}
-          path: zen-explorer-${{ matrix.os }}.zip
+          name: silkthemes-mac-aarch64
+          path: silkthemes-aarch64.zip
+      - name: Upload package (macOS x86_64)
+        uses: actions/upload-artifact@v4
+        if: ${{ matrix.os == 'macos-latest' }}
+        with:
+          name: silkthemes-mac-x86_64
+          path: silkthemes-x86_64.zip
       - name: Upload package (PowerShell)
         uses: actions/upload-artifact@v4
         if: ${{ matrix.os == 'windows-latest' }}
         with:
-          name: zen-explorer-${{ matrix.os }}
-          path: build/zen-explorer.exe
+          name: silkthemes-windows
+          path: build/silkthemes.exe
