@@ -7,9 +7,14 @@ class ThemeType(Enum):
     content = 2
 
 class Theme:
-    def __init__(self, data: dict, install_data: dict):
+    def __init__(self, data: dict, install_data: dict, _id=None):
         self._raw_data: dict = data
         self._raw_install_data: dict = install_data
+        self._id = _id
+    
+    @property
+    def id(self) -> str:
+        return self._id
 
     @property
     def name(self) -> str:
@@ -45,6 +50,10 @@ class Theme:
     @property
     def homepage(self) -> str:
         return self._raw_data.get('homepage')
+
+    @property
+    def thumbnail(self) -> str:
+        return self._raw_data.get('image')
 
     @property
     def version(self) -> str:
