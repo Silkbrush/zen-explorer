@@ -1,11 +1,12 @@
-from PySide6.QtWidgets import QLineEdit, QPushButton, QHBoxLayout, QComboBox
+from typing import TYPE_CHECKING, Any
+
 from PySide6.QtCore import Qt
+from PySide6.QtWidgets import QLineEdit, QPushButton, QHBoxLayout, QComboBox
+
 from explorer_ui.models import pages
 from explorer_ui.models.widgets import QWidget
-from explorer_ui.pages import overview
 from explorer_ui.utils import widgets
-from zen_explorer_core import installer
-from typing import TYPE_CHECKING, Any
+from zen_explorer_core import browser, installer, profiles
 
 if TYPE_CHECKING:
     from explorer_ui.components.main import MainWindow
@@ -78,9 +79,15 @@ class TopBar(QWidget):
         for button in self._create_profile_buttons():
             self.profile_area.addWidget(button)
             self.__widgets.add_widget(button)
-
-        self.profile_area.addWidget(self._create_profile_selector())
+            
+        browser_selector = self._create_browser_selelector()
+        self.profile_area.addWidget(browser_selector)
+        self.__widgets.add_widget(browser_selector)
+        profile_selector = self._create_profile_selector()
+        self.profile_area.addWidget(profile_selector)
+        self.__widgets.add_widget(profile_selector)
         self._root.profile = self._profiles[0]
+        
 
         # Run update
         self._update_buttons()
@@ -188,6 +195,43 @@ class TopBar(QWidget):
         """)
         return profile_selector
 
+    def _create_browser_selelector(self):
+        global browser
+        browsers = browser.browsers
+        choices = [browser for browser in browsers]
+        browser_selector = QComboBox()
+        browser_selector.setObjectName('browserSelector')
+        browser_selector.addItems(choices)
+        browser_selector.setCurrentIndex(0)
+        browser_selector.currentIndexChanged.connect(self._update_selected_browser)
+        browser_selector.setStyleSheet("""
+            QComboBox {
+                border: none;
+                padding: 5px;
+                margin-left: 10px;
+                border-radius: 4px;
+                color: white;
+            }
+
+            QComboBox::drop-down {
+                subcontrol-origin: padding;
+                subcontrol-position: center right;
+                border-left: none; /* Remove the border between the field and drop-down */
+                background: transparent; /* Remove background of the drop-down */
+                image: url('explorer_ui/assets/icons/down-arrow-white.png');
+                width: 8px;
+                height: 8px;
+                margin-right: 5px;
+            }
+
+            QComboBox QAbstractItemView {
+                margin: 0;
+                padding: 0;
+                background-color: #222;
+            }
+        """)
+        return browser_selector
+
     def _create_search_bar(self):
         self.search_bar = QLineEdit()
         self.search_bar.setPlaceholderText("Search")
@@ -233,6 +277,7 @@ class TopBar(QWidget):
         if self._root.get_current_page() == pages.Pages.overview:
             # Check if theme is installed
             theme = self._root.theme
+            print(f'Checking if {theme.id} is installed in {self._root.profile.id}.{self._root.profile.name} in the browser {browser.browser}...')
             installed = installer.is_installed(
                 f'{self._root.profile.id}.{self._root.profile.name}', theme.id
             )
@@ -271,6 +316,36 @@ class TopBar(QWidget):
             self._root.profile = self._profiles[index]
 
         self._update_buttons()
+
+        print(f'Selected profile: {self._root.profile.name} ({self._root.profile.id})')
+
+    def _update_profile_switcher(self):
+        switcher = self.__widgets.get_widget('profileSelector')
+        
+        # Clear existing items in the selector
+        switcher.clear()
+        
+        # Add new items based on updated profiles
+        choices = [f'{profile.name} ({profile.id})' for profile in self._profiles]
+        switcher.addItems(choices)
+        
+        # Set to first profile if available
+        if self._profiles:
+            switcher.setCurrentIndex(0)
+            self._root.profile = self._profiles[0]
+        
+        
+
+    def _update_selected_browser(self, index: int):
+        # Update selected profile
+        if index > 0 or index <= len(self._profiles):
+            print(browser.browsers[index])
+            browser.browser = browser.browsers[index]
+
+        self._root.update_content()
+        self._root.get_profiles()
+        self._profiles = self._root.profiles
+        self._update_profile_switcher()
 
         print(f'Selected profile: {self._root.profile.name} ({self._root.profile.id})')
 

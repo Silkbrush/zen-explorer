@@ -1,6 +1,6 @@
 from typing import Optional
 from PySide6.QtWidgets import QMainWindow, QVBoxLayout, QWidget
-from zen_explorer_core import repository, profiles, installer
+from zen_explorer_core import browser, repository, profiles, installer
 from zen_explorer_core.models import theme
 from explorer_ui.components import topbar, content
 from explorer_ui.models import pages, profiles as profile_models
@@ -35,11 +35,7 @@ class MainWindow(QMainWindow):
 
         # Add profiles list
         self.profiles: list = []
-        for profile in profiles.get_profiles():
-            try:
-                self.profiles.append(profile_models.Profile.from_string(profile))
-            except ValueError:
-                pass
+        self.get_profiles()
 
         # Window components
         self.topbar: Optional[topbar.TopBar] = None
@@ -57,6 +53,16 @@ class MainWindow(QMainWindow):
 
         # Internal variables
         self.__ready = False
+
+    def get_profiles(self):
+        print('getting profiles for ' + browser.browser)
+        self.profiles = []
+        for profile in profiles.get_profiles():
+            try:
+                self.profiles.append(profile_models.Profile.from_string(profile))
+                print(f'Loaded profile: {profile}')
+            except ValueError:
+                pass
 
     def prepare(self):
         """Prepares the window for use."""
@@ -141,6 +147,9 @@ class MainWindow(QMainWindow):
             print('Failed to uninstall theme: ', e)
         else:
             pass
+
+    def update_content(self):
+        self.navigate(self.page)
 
     def resizeEvent(self, event):
         self.content.resizeEvent(event)

@@ -48,6 +48,7 @@ def _profile_path(profile):
     return profiles.get_profile_path(profile)
 
 def _profile_exists(profile):
+    zen_profiles = profiles.get_profiles()
     if profile not in zen_profiles:
         for profile_name in zen_profiles:
             if profile == profile_name.split('.', 1)[0]:
