@@ -1,12 +1,21 @@
 import os
-from typing_extensions import Literal, Union
+from typing_extensions import Literal, Union, TypedDict
 from pathlib import Path
 import sys
 
 home = str(Path.home())
 browsers = ["zen", "firefox"]
 browser: Union[Literal["zen"], Literal["firefox"]] = "zen"
-paths = {
+
+class BrowserPath(TypedDict):
+    macos: list[str]
+    windows: list[str]
+    linux: list[str]
+    flatpak: list[str]
+
+BrowserPaths = dict[str, BrowserPath]
+
+paths: BrowserPaths = {
     'zen': {
         'macos': [home + '/Library/Application Support/zen/Profiles'],
         'windows': [home + '/AppData/Roaming/zen/Profiles'],
