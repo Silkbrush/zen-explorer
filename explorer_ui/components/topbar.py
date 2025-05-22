@@ -202,7 +202,7 @@ class TopBar(QWidget):
         browser_selector = QComboBox()
         browser_selector.setObjectName('browserSelector')
         browser_selector.addItems(choices)
-        browser_selector.setCurrentIndex(0)
+        browser_selector.setCurrentText(browser.browser)
         browser_selector.currentIndexChanged.connect(self._update_selected_browser)
         browser_selector.setStyleSheet("""
             QComboBox {

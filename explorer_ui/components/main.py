@@ -1,6 +1,6 @@
 from typing import Optional
 from PySide6.QtWidgets import QMainWindow, QVBoxLayout, QWidget
-from zen_explorer_core import browser, repository, profiles, installer
+from zen_explorer_core import browser, repository, profiles, installer, settings
 from zen_explorer_core.models import theme
 from explorer_ui.components import topbar, content
 from explorer_ui.models import pages, profiles as profile_models
@@ -9,9 +9,10 @@ from explorer_ui.utils import images
 
 
 class MainWindow(QMainWindow):
-    def __init__(self, repo: repository.RepositoryData):
+    def __init__(self, repo: repository.RepositoryData, settings: settings.SettingsData):
         super().__init__()
-
+        settings.set_setting('standard browser', 'zen')
+        browser.browser = settings.get_setting('standard browser')
         # Set window properties
         self.resize(800, 600)
         self.setWindowTitle("Silkthemes")

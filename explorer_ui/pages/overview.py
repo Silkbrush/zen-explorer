@@ -1,7 +1,7 @@
 from PySide6.QtWidgets import (
     QHBoxLayout,
     QVBoxLayout,
-    QWidget,
+    # QWidget,
     QLabel,
     QScrollArea,
 )
@@ -11,6 +11,7 @@ from zen_explorer_core import repository
 import re
 import markdown
 from typing import TYPE_CHECKING, Any
+from ..models.widgets import QWidget
 
 if TYPE_CHECKING:
     from explorer_ui.components.main import MainWindow
