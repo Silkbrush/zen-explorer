@@ -4,21 +4,20 @@ from zen_explorer_core import browser, repository, profiles, installer, settings
 from zen_explorer_core.models import theme
 from explorer_ui.components import topbar, content
 from explorer_ui.models import pages, profiles as profile_models
-from explorer_ui.pages import discover, overview, management
+from explorer_ui.pages import discover, overview, management, settings as settingsman
 from explorer_ui.utils import images
 
 
 class MainWindow(QMainWindow):
     def __init__(self, repo: repository.RepositoryData, settings: settings.SettingsData):
         super().__init__()
-        settings.set_setting('standard browser', 'zen')
         browser.browser = settings.get_setting('standard browser')
         # Set window properties
         self.resize(800, 600)
         self.setWindowTitle("Silkthemes")
         self.setStyleSheet('background-color: #333;')
 
-        # Create widget and layout
+        # Create the widget and layout
         self.widget = QWidget()
         self.layout = QVBoxLayout()
 
@@ -109,6 +108,8 @@ class MainWindow(QMainWindow):
             screen = overview.ThemeScreen(self)
         elif page == pages.Pages.manage:
             screen = management.ThemeManagementScreen(self)
+        elif page == pages.Pages.settings:
+            screen = settingsman.SettingsScreen(self, settings.settings)
         self.current_screen = screen
         self.content.set_content(screen)
 

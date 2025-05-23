@@ -1,6 +1,6 @@
 import json
 import os
-from typing import Optional, TypedDict, NotRequired, Union, Any
+from typing import Optional, TypedDict, NotRequired, Union, Any, Literal
 
 import platformdirs
 
@@ -8,7 +8,7 @@ save_dir = os.environ.get('WORKING_DIR') or platformdirs.user_data_dir('zen-expl
 
 class SettingDefinition(TypedDict):
     name: str
-    type: str
+    type: Union[Literal['select'], Literal['number'], Literal['string'], Literal['boolean']]
     select_type: NotRequired[Any]
     choices: NotRequired[list[str]]
     description: str
