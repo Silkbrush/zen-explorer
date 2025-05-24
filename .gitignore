@@ -1,0 +1,6 @@
+# python standards
+__pycache__
+*.pyc
+.git
+logs/
+.idea/*

@@ -1,0 +1,9 @@
+@primary-color: #E58E27
+@transparent-background: #00000000
+@transparent-container-color: #33000000
+@navbutton-hover-color: #555555
+
+@primary-color: #E58E27
+@window-background: #161A1E
+@container-color: #2A2E32
+@navbutton-hover-color: #555555

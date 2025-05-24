@@ -1,0 +1,13 @@
+@primary-color: #3498db;
+@background-color: #333;
+@container-color: #222;
+@disabled-color: #333;
+@approve-color: #4caf50;
+@reject-color: #f44336;
+@updated-color: #ffc107;
+
+# border
+@border-radius: 4px;
+@border-thickness: 0px;
+@border-style: none;
+@border-color: #fff;
