@@ -6,7 +6,13 @@ from explorer_ui.components import main as main_comp # , sidebar
 
 def main():
     app = QApplication(sys.argv)
-    app.setStyleSheet(load_css("explorer_ui/explorer_themes/default"))
+    # app.setStyleSheet(load_css("explorer_ui/explorer_themes/default"))
+    app.setStyleSheet(
+        """
+        body {
+        color: #fff;
+        }"""
+    )
     repository.update_repository()
     set.load_settings()
     settings = set.settings

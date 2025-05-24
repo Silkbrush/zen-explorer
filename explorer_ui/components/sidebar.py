@@ -12,7 +12,7 @@ class SideBar(QWidget):
         super().__init__()
         self._screen = screen
         self._layout = QVBoxLayout(self)
-        self.setStyleSheet('background-color: #222; margin: 10px; margin-bottom: 0; border: none; border-radius: 6px;')
+        self.setStyleSheet('background-color: #222; margin: 10px; margin-bottom: 0; border: none; border-radius: 6px; color: white;')
         self.setLayout(self._layout)
         self.tags = {
             # 'test1': partial(self._screen.filter_by_tag, 'test1'),

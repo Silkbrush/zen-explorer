@@ -24,6 +24,7 @@ class ThemeManagementScreen(QWidget):
         self.update_themes()
         self.setLayout(self._layout)
         self.allowresizeon = time.time()
+        self.setStyleSheet('color: white;')
 
     # noinspection PyUnresolvedReferences,PyUnboundLocalVariable
     def update_themes(self):
