@@ -98,8 +98,8 @@ class ThemeManagementScreen(QWidget):
         is_updateable = installer.is_updateable(profile, theme)
         button_data = {
             'text': 'Update' if is_updateable else 'Up to date',
-            'action': (lambda _=None, theme=theme, profile=profile:
-                       self._update(theme, profile)),
+            'action': (lambda _=None, t=theme, p=profile:
+                       self._update(t, p)),
             'objectName': 'updateButton' if is_updateable else 'uptodateLabel',
         }
         update_button = QPushButton(button_data['text'])
